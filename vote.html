@@ -12,8 +12,47 @@
 </head>
 <body>
     <h1>Voting Sites</h1>
-    <div class="vote-card"><a href="https://minecraftservers.org" target="_blank">MinecraftServers.org</a></div>
-    <div class="vote-card"><a href="https://topg.org" target="_blank">TopG.org</a></div>
-    <div class="vote-card"><a href="https://minecraft-mp.com" target="_blank">Minecraft-MP.com</a></div>
+    <div id="vote-sites-container">
+        <p>Loading voting sites...</p>
+    </div>
+
+    <script type="module">
+        import { db } from './firebase-config.js';
+        import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        async function loadVotingSites() {
+            const container = document.getElementById('vote-sites-container');
+            
+            try {
+                const querySnap = await getDocs(collection(db, "votesites"));
+                container.innerHTML = '';
+
+                if (querySnap.empty) {
+                    container.innerHTML = '<p>No voting sites available right now.</p>';
+                    return;
+                }
+
+                querySnap.forEach((doc) => {
+                    const data = doc.data();
+                    let siteUrl = data.url || '#';
+
+                    if (siteUrl !== '#' && !siteUrl.startsWith('http://') && !siteUrl.startsWith('https://')) {
+                        siteUrl = 'https://' + siteUrl;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'vote-card';
+                    card.innerHTML = `<a href="${siteUrl}" target="_blank">${data.name || 'Voting Site'}</a>`;
+                    
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error fetching voting sites:", error);
+                container.innerHTML = '<p>Failed to load voting sites.</p>';
+            }
+        }
+
+        loadVotingSites();
+    </script>
 </body>
 </html>
