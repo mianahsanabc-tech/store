@@ -61,6 +61,29 @@
         <button id="save-socials">Update Social Links</button>
     </div>
 
+    <!-- Voting Sites Management -->
+    <div class="section">
+        <h3>Edit / Delete Voting Sites</h3>
+        <label>Select Voting Site:</label>
+        <select id="vote-site-select"></select>
+
+        <label>Site Name:</label>
+        <input type="text" id="vote-site-name" placeholder="e.g. Planet Minecraft">
+
+        <label>Vote URL Link:</label>
+        <input type="text" id="vote-site-url" placeholder="https://planetminecraft.com/server/...">
+
+        <button id="save-vote-site">Update Selected Voting Site</button>
+        <button id="delete-vote-site" class="delete-btn">Remove Selected Voting Site</button>
+    </div>
+
+    <div class="section">
+        <h3>Add New Voting Site</h3>
+        <input type="text" id="new-vote-name" placeholder="Site Name (e.g. MinecraftMP)">
+        <input type="text" id="new-vote-url" placeholder="URL Link (https://minecraft-mp.com/...)">
+        <button id="add-vote-site" style="background: #28a745;">Add Voting Site</button>
+    </div>
+
     <!-- Dynamic Rank, Logo & Remove Rank Editor -->
     <div class="section">
         <h3>Edit / Delete Existing Rank</h3>
@@ -133,12 +156,12 @@
 
 <script type="module">
     import { db } from './firebase-config.js';
-    import { doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     let customEditLogoBase64 = null;
     let customNewLogoBase64 = null;
+    let votingSitesCache = {};
 
-    // Helper function to read uploaded image as Base64 string
     function readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -154,6 +177,7 @@
             document.getElementById('auth-overlay').style.display = "none";
             loadNotice();
             loadSocials();
+            loadVotingSites();
             loadAllRanksIntoSelect();
         } else {
             alert("Incorrect password!");
@@ -198,6 +222,98 @@
         } catch (error) {
             console.error("Error clearing notice:", error);
             alert("Failed to clear notification. Check Firebase rules/console.");
+        }
+    });
+
+    // --- Voting Sites Logic ---
+    async function loadVotingSites() {
+        const select = document.getElementById('vote-site-select');
+        select.innerHTML = '';
+        votingSitesCache = {};
+
+        try {
+            const querySnap = await getDocs(collection(db, "votesites"));
+            querySnap.forEach(d => {
+                votingSitesCache[d.id] = d.data();
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.innerText = d.data().name || d.id;
+                select.appendChild(opt);
+            });
+
+            if (Object.keys(votingSitesCache).length > 0) {
+                fillVoteSiteForm();
+            } else {
+                document.getElementById('vote-site-name').value = '';
+                document.getElementById('vote-site-url').value = '';
+            }
+        } catch (error) {
+            console.error("Error loading voting sites:", error);
+        }
+    }
+
+    function fillVoteSiteForm() {
+        const selectedId = document.getElementById('vote-site-select').value;
+        if (selectedId && votingSitesCache[selectedId]) {
+            document.getElementById('vote-site-name').value = votingSitesCache[selectedId].name || '';
+            document.getElementById('vote-site-url').value = votingSitesCache[selectedId].url || '';
+        }
+    }
+
+    document.getElementById('vote-site-select').addEventListener('change', fillVoteSiteForm);
+
+    document.getElementById('save-vote-site').addEventListener('click', async () => {
+        const selectedId = document.getElementById('vote-site-select').value;
+        if (!selectedId) return alert("No voting site selected!");
+
+        const name = document.getElementById('vote-site-name').value.trim();
+        const url = document.getElementById('vote-site-url').value.trim();
+
+        if (!name || !url) return alert("Please fill out both Name and URL.");
+
+        try {
+            await setDoc(doc(db, "votesites", selectedId), { name: name, url: url }, { merge: true });
+            alert("Voting site updated!");
+            loadVotingSites();
+        } catch (error) {
+            console.error("Error updating voting site:", error);
+            alert("Failed to update site.");
+        }
+    });
+
+    document.getElementById('delete-vote-site').addEventListener('click', async () => {
+        const selectedId = document.getElementById('vote-site-select').value;
+        if (!selectedId) return alert("No voting site selected!");
+
+        if (confirm("Are you sure you want to delete this voting site?")) {
+            try {
+                await deleteDoc(doc(db, "votesites", selectedId));
+                alert("Voting site removed!");
+                loadVotingSites();
+            } catch (error) {
+                console.error("Error deleting voting site:", error);
+                alert("Failed to remove voting site.");
+            }
+        }
+    });
+
+    document.getElementById('add-vote-site').addEventListener('click', async () => {
+        const name = document.getElementById('new-vote-name').value.trim();
+        const url = document.getElementById('new-vote-url').value.trim();
+
+        if (!name || !url) return alert("Please enter both a Site Name and URL link.");
+
+        const docId = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+        try {
+            await setDoc(doc(db, "votesites", docId), { name: name, url: url });
+            alert("New voting site added!");
+            document.getElementById('new-vote-name').value = '';
+            document.getElementById('new-vote-url').value = '';
+            loadVotingSites();
+        } catch (error) {
+            console.error("Error adding voting site:", error);
+            alert("Failed to add voting site.");
         }
     });
 
@@ -275,7 +391,7 @@
         const selectedRank = document.getElementById('rank-select').value;
         if (!selectedRank) return;
 
-        customEditLogoBase64 = null; // Reset custom file
+        customEditLogoBase64 = null;
         document.getElementById('rank-logo-upload').value = "";
 
         const docSnap = await getDoc(doc(db, "ranks", selectedRank));
@@ -302,7 +418,6 @@
         const rankKey = document.getElementById('rank-select').value;
         if (!rankKey) return;
 
-        // Choose uploaded file if provided, otherwise fallback to dropdown
         const chosenLogo = customEditLogoBase64 || document.getElementById('rank-logo-select').value;
 
         await setDoc(doc(db, "ranks", rankKey), {
