@@ -45,6 +45,101 @@
         <input type="text" id="smp-name-input" placeholder="BRINE SMP">
         <button id="save-smp-name">Update SMP Server Name</button>
     </div>
+    <!-- Social Links & Visibility Management -->
+<div class="admin-card">
+    <h2>Social Links & Settings</h2>
+    
+    <!-- Discord -->
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="enable-discord"> Enable Discord Icon
+        </label>
+        <input type="text" id="discord-url" placeholder="https://discord.gg/yourserver">
+    </div>
+
+    <!-- YouTube -->
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="enable-youtube"> Enable YouTube Icon
+        </label>
+        <input type="text" id="youtube-url" placeholder="https://youtube.com/@yourchannel">
+    </div>
+
+    <!-- TikTok -->
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="enable-tiktok"> Enable TikTok Icon
+        </label>
+        <input type="text" id="tiktok-url" placeholder="https://tiktok.com/@yourprofile">
+    </div>
+
+    <!-- Instagram -->
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="enable-instagram"> Enable Instagram Icon
+        </label>
+        <input type="text" id="instagram-url" placeholder="https://instagram.com/yourhandle">
+    </div>
+
+    <button id="save-socials-btn">Save Social Settings</button>
+</div>
+
+<script type="module">
+    import { db } from './firebase-config.js';
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const socialsRef = doc(db, "settings", "socials");
+
+    // Load current values and checkbox statuses
+    async function loadSocialSettings() {
+        try {
+            const docSnap = await getDoc(socialsRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                document.getElementById('discord-url').value = data.discord || '';
+                document.getElementById('enable-discord').checked = data.discordEnabled ?? true;
+
+                document.getElementById('youtube-url').value = data.youtube || '';
+                document.getElementById('enable-youtube').checked = data.youtubeEnabled ?? true;
+
+                document.getElementById('tiktok-url').value = data.tiktok || '';
+                document.getElementById('enable-tiktok').checked = data.tiktokEnabled ?? true;
+
+                document.getElementById('instagram-url').value = data.instagram || '';
+                document.getElementById('enable-instagram').checked = data.instagramEnabled ?? true;
+            }
+        } catch (error) {
+            console.error("Error loading social settings:", error);
+        }
+    }
+
+    // Save values and checkbox statuses
+    document.getElementById('save-socials-btn').addEventListener('click', async () => {
+        try {
+            await setDoc(socialsRef, {
+                discord: document.getElementById('discord-url').value.trim(),
+                discordEnabled: document.getElementById('enable-discord').checked,
+
+                youtube: document.getElementById('youtube-url').value.trim(),
+                youtubeEnabled: document.getElementById('enable-youtube').checked,
+
+                tiktok: document.getElementById('tiktok-url').value.trim(),
+                tiktokEnabled: document.getElementById('enable-tiktok').checked,
+
+                instagram: document.getElementById('instagram-url').value.trim(),
+                instagramEnabled: document.getElementById('enable-instagram').checked
+            }, { merge: true });
+
+            alert("Social links updated successfully!");
+        } catch (error) {
+            console.error("Error saving social settings:", error);
+            alert("Failed to save social settings.");
+        }
+    });
+
+    loadSocialSettings();
+</script>
 
     <!-- Social Media Links Management -->
     <div class="section">
