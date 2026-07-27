@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders - BRINE SMP</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        body { background: #1a1a1a; color: white; font-family: sans-serif; padding: 20px; }
+        table { width: 100%; max-width: 800px; margin: 20px auto; border-collapse: collapse; }
+        th, td { border: 1px solid #444; padding: 12px; text-align: left; }
+        th { background: #222; }
+        .Accepted { color: #55FF55; font-weight: bold; }
+        .Rejected { color: #FF5555; font-weight: bold; }
+        .Pending { color: #FFFF55; font-weight: bold; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: auto; }
+        .btn { padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <h2>Your Order History</h2>
+    <div id="user-info"></div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Minecraft Username</th>
+            <th>Rank Ordered</th>
+            <th>Status</th>
+            <th>Details / Delivery Time / Reason</th>
+        </tr>
+    </thead>
+    <tbody id="status-table-body">
+        <tr><td colspan="4">Checking authentication...</td></tr>
+    </tbody>
+</table>
+
+<script type="module">
+    import { db, auth } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    onAuthStateChanged(auth, async (user) => {
+        const tbody = document.getElementById('status-table-body');
+        const userInfo = document.getElementById('user-info');
+
+        if (!user) {
+            alert("You must be logged in to view your orders!");
+            window.location.href = "login.html";
+            return;
+        }
+
+        userInfo.innerHTML = `<span>${user.email}</span> <button class="btn" id="logout-btn">Logout</button>`;
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.href="login.html"));
+
+        // Fetch ONLY orders that belong to the logged-in user's UID
+        try {
+            const q = query(collection(db, "orders"), where("userId", "==", user.uid));
+            const querySnapshot = await getDocs(q);
+            tbody.innerHTML = '';
+
+            if (querySnapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="4">No orders found for your account.</td></tr>';
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const row = document.createElement('tr');
+                
+                let detailsText = "-";
+                if(data.status === 'Accepted' && data.timeEstimate) {
+                    detailsText = `Delivery expected in: ${data.timeEstimate}`;
+                } else if(data.status === 'Rejected' && data.rejectionReason) {
+                    detailsText = `Reason: ${data.rejectionReason}`;
+                }
+
+                row.innerHTML = `
+                    <td>${data.mcUsername}</td>
+                    <td>${data.rankName}</td>
+                    <td class="${data.status}">${data.status}</td>
+                    <td>${detailsText}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (e) {
+            console.error(e);
+            tbody.innerHTML = '<tr><td colspan="4">Error loading order details.</td></tr>';
+        }
+    });
+</script>
+</body>
+</html>

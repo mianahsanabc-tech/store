@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - BRINE SMP</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        body { background: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 650px; margin: auto; }
+        .section { background: #1e1e1e; padding: 20px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #333; }
+        input, select { padding: 10px; margin: 8px 0; width: 100%; box-sizing: border-box; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 12px; cursor: pointer; width: 100%; margin-top: 8px; border-radius: 4px; font-weight: bold; }
+        button.delete-btn { background: #dc3545; margin-top: 10px; }
+        #auth-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-card { background: #1e1e1e; padding: 25px; border-radius: 8px; width: 300px; text-align: center; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h3>Admin Authentication</h3>
+        <input type="password" id="admin-pass" placeholder="Password">
+        <button id="login-btn">Login</button>
+    </div>
+</div>
+
+<div class="container">
+    <h1>Admin Panel</h1>
+
+    <!-- SMP Server Name Settings -->
+    <div class="section">
+        <h3>Server Name Settings</h3>
+        <input type="text" id="smp-name-input" placeholder="BRINE SMP">
+        <button id="save-smp-name">Update SMP Server Name</button>
+    </div>
+
+    <!-- Social Media Links Management -->
+    <div class="section">
+        <h3>Social Links Management</h3>
+        <label>Discord Link:</label>
+        <input type="text" id="discord-input" placeholder="https://discord.gg/yourcode">
+        
+        <label>YouTube Link:</label>
+        <input type="text" id="youtube-input" placeholder="https://youtube.com/@yourchannel">
+        
+        <label>TikTok Link:</label>
+        <input type="text" id="tiktok-input" placeholder="https://tiktok.com/@youraccount">
+        
+        <button id="save-socials">Update Social Links</button>
+    </div>
+
+    <!-- Dynamic Rank, Logo & Remove Rank Editor -->
+    <div class="section">
+        <h3>Edit / Delete Existing Rank</h3>
+        <label>Select Rank Key:</label>
+        <select id="rank-select"></select>
+
+        <label>Display Title:</label>
+        <input type="text" id="rank-display-title" placeholder="Display Title">
+
+        <label>Price ($):</label>
+        <input type="text" id="rank-price-input" placeholder="Price">
+
+        <label>Rank Icon Logo:</label>
+        <select id="rank-logo-select">
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/obsidian.png">Obsidian</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_ingot.png">Netherite Ingot</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png">Eye of Ender</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png">Golden Apple</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald</option>
+        </select>
+
+        <label>Benefits (comma separated):</label>
+        <input type="text" id="rank-benefits-input" placeholder="Fly, Kit VIP, 5x Homes">
+
+        <button id="save-rank">Save Rank Updates</button>
+        <button id="delete-rank" class="delete-btn">Remove / Delete Selected Rank</button>
+    </div>
+
+    <!-- Add New Custom Rank -->
+    <div class="section">
+        <h3>Create New Custom Rank</h3>
+        <input type="text" id="new-rank-id" placeholder="Rank Key ID (e.g. LEGEND)">
+        <input type="text" id="new-rank-title" placeholder="Display Title Name">
+        <input type="text" id="new-rank-price" placeholder="Price ($)">
+        <select id="new-rank-logo">
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/obsidian.png">Obsidian</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald</option>
+        </select>
+        <input type="text" id="new-rank-benefits" placeholder="Benefits (comma separated)">
+        <button id="create-rank" style="background: #28a745;">Add New Rank</button>
+    </div>
+</div>
+
+<script type="module">
+    import { db } from './firebase-config.js';
+    import { doc, setDoc, getDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+        if (document.getElementById('admin-pass').value === "ahsan321") {
+            document.getElementById('auth-overlay').style.display = "none";
+            loadSocials();
+            loadAllRanksIntoSelect();
+        } else {
+            alert("Incorrect password!");
+        }
+    });
+
+    // Save SMP Name
+    document.getElementById('save-smp-name').addEventListener('click', async () => {
+        const name = document.getElementById('smp-name-input').value.trim();
+        if (!name) return alert("Please enter an SMP name.");
+        await setDoc(doc(db, "settings", "server"), { name: name }, { merge: true });
+        alert('Server name updated!');
+    });
+
+    // Load Socials
+    async function loadSocials() {
+        const docSnap = await getDoc(doc(db, "settings", "socials"));
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.discord) document.getElementById('discord-input').value = data.discord;
+            if (data.youtube) document.getElementById('youtube-input').value = data.youtube;
+            if (data.tiktok) document.getElementById('tiktok-input').value = data.tiktok;
+        }
+    }
+
+    // Save Social Media Links
+    document.getElementById('save-socials').addEventListener('click', async () => {
+        await setDoc(doc(db, "settings", "socials"), {
+            discord: document.getElementById('discord-input').value.trim(),
+            youtube: document.getElementById('youtube-input').value.trim(),
+            tiktok: document.getElementById('tiktok-input').value.trim()
+        }, { merge: true });
+        alert('Social links updated successfully!');
+    });
+
+    // Load ranks into select dropdown
+    async function loadAllRanksIntoSelect() {
+        const select = document.getElementById('rank-select');
+        select.innerHTML = '';
+        
+        const defaultKeys = ['VIP', 'VIP+', 'VIP++', 'VIP+++'];
+        const querySnap = await getDocs(collection(db, "ranks"));
+        
+        let dbMap = {};
+        querySnap.forEach(d => dbMap[d.id] = d.data());
+
+        let keys = [...defaultKeys, ...Object.keys(dbMap)];
+        keys = Array.from(new Set(keys)).filter(k => !dbMap[k] || dbMap[k].deleted !== true);
+
+        keys.forEach(k => {
+            const opt = document.createElement('option');
+            opt.value = k;
+            opt.innerText = k;
+            select.appendChild(opt);
+        });
+
+        if (keys.length > 0) loadRankDetails();
+    }
+
+    async function loadRankDetails() {
+        const selectedRank = document.getElementById('rank-select').value;
+        if (!selectedRank) return;
+
+        const docSnap = await getDoc(doc(db, "ranks", selectedRank));
+
+        if (docSnap.exists() && !docSnap.data().deleted) {
+            const data = docSnap.data();
+            document.getElementById('rank-display-title').value = data.title || selectedRank;
+            document.getElementById('rank-price-input').value = data.price || '';
+            document.getElementById('rank-benefits-input').value = (data.benefits || []).join(', ');
+            if (data.logo) document.getElementById('rank-logo-select').value = data.logo;
+        } else {
+            document.getElementById('rank-display-title').value = selectedRank;
+            document.getElementById('rank-price-input').value = '';
+            document.getElementById('rank-benefits-input').value = '';
+        }
+    }
+
+    document.getElementById('rank-select').addEventListener('change', loadRankDetails);
+
+    // Save Rank Updates
+    document.getElementById('save-rank').addEventListener('click', async () => {
+        const rankKey = document.getElementById('rank-select').value;
+        if (!rankKey) return;
+
+        await setDoc(doc(db, "ranks", rankKey), {
+            title: document.getElementById('rank-display-title').value.trim() || rankKey,
+            price: document.getElementById('rank-price-input').value.trim(),
+            logo: document.getElementById('rank-logo-select').value,
+            benefits: document.getElementById('rank-benefits-input').value.split(',').map(s => s.trim()).filter(Boolean),
+            deleted: false
+        }, { merge: true });
+
+        alert(`${rankKey} rank saved successfully!`);
+    });
+
+    // Remove / Delete Rank Button
+    document.getElementById('delete-rank').addEventListener('click', async () => {
+        const rankKey = document.getElementById('rank-select').value;
+        if (!rankKey) return;
+
+        if (confirm(`Are you sure you want to remove the "${rankKey}" rank from the store?`)) {
+            // Delete document or mark deleted flag for default keys
+            await setDoc(doc(db, "ranks", rankKey), { deleted: true }, { merge: true });
+            alert(`Rank "${rankKey}" has been removed!`);
+            loadAllRanksIntoSelect();
+        }
+    });
+
+    // Add New Custom Rank
+    document.getElementById('create-rank').addEventListener('click', async () => {
+        const rankKey = document.getElementById('new-rank-id').value.trim().toUpperCase();
+        if(!rankKey) return alert("Please enter a Rank Key ID!");
+
+        await setDoc(doc(db, "ranks", rankKey), {
+            title: document.getElementById('new-rank-title').value.trim() || rankKey,
+            price: document.getElementById('new-rank-price').value.trim(),
+            logo: document.getElementById('new-rank-logo').value,
+            benefits: document.getElementById('new-rank-benefits').value.split(',').map(s => s.trim()).filter(Boolean),
+            deleted: false
+        }, { merge: true });
+
+        alert(`New rank "${rankKey}" created!`);
+        loadAllRanksIntoSelect();
+    });
+</script>
+</body>
+</html>

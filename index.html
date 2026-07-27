@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRINE SMP - Store</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gui-bg: #c6c6c6;
+            --gui-border-dark: #2b2b2b;
+            --gui-border-light: #ffffff;
+            --slot-bg: #8b8b8b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: #090a0f;
+            background-image: 
+                radial-gradient(circle at 50% 30%, rgba(18, 28, 45, 0.75) 0%, rgba(3, 3, 5, 0.98) 85%),
+                url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/deepslate.png');
+            background-blend-mode: overlay;
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+            user-select: none;
+        }
+
+        .server-title {
+            font-size: 56px;
+            color: #55FFFF;
+            text-shadow: 4px 4px 0px #00AAAA, 0 0 25px rgba(85, 255, 255, 0.6);
+            margin-bottom: 25px;
+            letter-spacing: 5px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .chest-container {
+            background: var(--gui-bg);
+            border: 4px solid var(--gui-border-dark);
+            box-shadow: 
+                inset -4px -4px 0px #555555, 
+                inset 4px 4px 0px var(--gui-border-light), 
+                0 20px 60px rgba(0, 0, 0, 0.95);
+            padding: 14px;
+            border-radius: 4px;
+            width: 488px;
+        }
+
+        .chest-header {
+            color: #404040;
+            font-size: 28px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+            text-shadow: 1px 1px 0px #fff;
+        }
+
+        .chest-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 48px);
+            gap: 4px;
+            background: #8b8b8b;
+            padding: 6px;
+            border: 3px solid var(--gui-border-dark);
+            box-shadow: inset 3px 3px 0px #373737, inset -3px -3px 0px #ffffff;
+            justify-content: center;
+        }
+
+        .slot {
+            width: 48px;
+            height: 48px;
+            background: #8b8b8b;
+            border: 3px solid #373737;
+            border-right-color: #ffffff;
+            border-bottom-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.1s;
+        }
+
+        .slot:hover:not(.empty) {
+            background: rgba(255, 255, 255, 0.45);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.9);
+        }
+
+        .slot.empty {
+            cursor: default;
+        }
+
+        .slot img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.6));
+            transition: transform 0.12s ease;
+        }
+
+        .slot:hover:not(.empty) img {
+            transform: scale(1.18);
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 58px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(16, 0, 16, 0.95);
+            border: 3px solid #2b005e;
+            color: #ffffff;
+            padding: 6px 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            font-size: 20px;
+            border-radius: 4px;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.85);
+            pointer-events: none;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .tooltip .title { font-weight: bold; }
+        .tooltip .subtitle { color: #AAAAAA; font-size: 16px; display: block; }
+
+        .slot:hover .tooltip {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="server-title" id="server-title-display">BRINE SMP</div>
+
+<div class="chest-container">
+    <div class="chest-header">
+        <span>Server Store</span>
+    </div>
+
+    <div class="chest-grid" id="chest-grid-container">
+        <!-- Ranks & Links Dynamic Injection Area -->
+    </div>
+</div>
+
+<script type="module">
+  import { db } from './firebase-config.js';
+  import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const DEFAULT_RANKS = [
+      { id: 'VIP', file: 'vip.html', title: 'VIP Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png' },
+      { id: 'VIP+', file: 'vip1.html', title: 'VIP+ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png' },
+      { id: 'VIP++', file: 'vip2.html', title: 'VIP++ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png' },
+      { id: 'VIP+++', file: 'vip3.html', title: 'VIP+++ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png' }
+  ];
+
+  async function initStore() {
+      const grid = document.getElementById('chest-grid-container');
+      grid.innerHTML = '';
+
+      // Fetch Ranks
+      const ranksSnap = await getDocs(collection(db, "ranks"));
+      const dbRanksMap = {};
+      ranksSnap.forEach(docSnap => {
+          dbRanksMap[docSnap.id] = docSnap.data();
+      });
+
+      let allRankKeys = Array.from(new Set([...DEFAULT_RANKS.map(r => r.id), ...Object.keys(dbRanksMap)]));
+
+      // Filter out deleted ranks
+      allRankKeys = allRankKeys.filter(key => dbRanksMap[key] === undefined || dbRanksMap[key].deleted !== true);
+
+      const totalSlots = 27;
+      let slotsFilled = 0;
+
+      // Render Ranks
+      allRankKeys.forEach(key => {
+          const rankData = dbRanksMap[key] || {};
+          const defaultRef = DEFAULT_RANKS.find(r => r.id === key);
+
+          const logo = rankData.logo || (defaultRef ? defaultRef.logo : 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png');
+          const title = rankData.title || (defaultRef ? defaultRef.title : key);
+          const link = defaultRef ? defaultRef.file : `vip.html?rank=${encodeURIComponent(key)}`;
+
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.onclick = () => location.href = link;
+          slot.innerHTML = `
+              <img src="${logo}" alt="${title}">
+              <div class="tooltip"><span class="title" style="color: #55FF55;">${title}</span><span class="subtitle">Click to view rank</span></div>
+          `;
+          grid.appendChild(slot);
+          slotsFilled++;
+      });
+
+      // Vote Sites
+      const voteSlot = document.createElement('div');
+      voteSlot.className = 'slot';
+      voteSlot.onclick = () => location.href = 'vote.html';
+      voteSlot.innerHTML = `
+          <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png" alt="Vote">
+          <div class="tooltip"><span class="title" style="color: #FFFF55;">Vote Sites</span><span class="subtitle">Vote for daily rewards</span></div>
+      `;
+      grid.appendChild(voteSlot);
+      slotsFilled++;
+
+      // Discord (Official Logo)
+      const discordSlot = document.createElement('div');
+      discordSlot.className = 'slot';
+      discordSlot.onclick = async () => {
+          const docSnap = await getDoc(doc(db, "settings", "socials"));
+          if (docSnap.exists() && docSnap.data().discord) window.open(docSnap.data().discord, '_blank');
+          else alert("Discord link not configured!");
+      };
+      discordSlot.innerHTML = `
+          <img src="https://api.iconify.design/logos:discord-icon.svg" alt="Discord">
+          <div class="tooltip"><span class="title" style="color: #5865F2;">Discord</span><span class="subtitle">Join our community</span></div>
+      `;
+      grid.appendChild(discordSlot);
+      slotsFilled++;
+
+      // YouTube (Official Logo)
+      const ytSlot = document.createElement('div');
+      ytSlot.className = 'slot';
+      ytSlot.onclick = async () => {
+          const docSnap = await getDoc(doc(db, "settings", "socials"));
+          if (docSnap.exists() && docSnap.data().youtube) window.open(docSnap.data().youtube, '_blank');
+          else alert("YouTube link not configured!");
+      };
+      ytSlot.innerHTML = `
+          <img src="https://api.iconify.design/logos:youtube-icon.svg" alt="YouTube">
+          <div class="tooltip"><span class="title" style="color: #FF0000;">YouTube</span><span class="subtitle">Subscribe on YouTube</span></div>
+      `;
+      grid.appendChild(ytSlot);
+      slotsFilled++;
+
+      // TikTok (Official Logo)
+      const ttSlot = document.createElement('div');
+      ttSlot.className = 'slot';
+      ttSlot.onclick = async () => {
+          const docSnap = await getDoc(doc(db, "settings", "socials"));
+          if (docSnap.exists() && docSnap.data().tiktok) window.open(docSnap.data().tiktok, '_blank');
+          else alert("TikTok link not configured!");
+      };
+      ttSlot.innerHTML = `
+          <img src="https://api.iconify.design/logos:tiktok-icon.svg" alt="TikTok">
+          <div class="tooltip"><span class="title" style="color: #00F2FE;">TikTok</span><span class="subtitle">Follow on TikTok</span></div>
+      `;
+      grid.appendChild(ttSlot);
+      slotsFilled++;
+
+      // Empty Slots Fill
+      while (slotsFilled < totalSlots - 1) {
+          const emptySlot = document.createElement('div');
+          emptySlot.className = 'slot empty';
+          grid.appendChild(emptySlot);
+          slotsFilled++;
+      }
+
+      // Check Order Status Emerald Slot
+      const statusSlot = document.createElement('div');
+      statusSlot.className = 'slot';
+      statusSlot.onclick = () => location.href = 'status.html';
+      statusSlot.innerHTML = `
+          <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png" alt="Status">
+          <div class="tooltip"><span class="title" style="color: #55FF55;">Order Status</span><span class="subtitle">View your purchases</span></div>
+      `;
+      grid.appendChild(statusSlot);
+  }
+
+  async function loadSMPName() {
+      try {
+          const docRef = doc(db, "settings", "server");
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && docSnap.data().name) {
+              document.getElementById('server-title-display').innerText = docSnap.data().name;
+          }
+      } catch(e) {
+          console.error(e);
+      }
+  }
+
+  loadSMPName();
+  initStore();
+</script>
+</body>
+</html>
