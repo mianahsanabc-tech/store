@@ -18,14 +18,6 @@
     </style>
 </head>
 <body>
-    <!-- Notification Broadcast Control -->
-    <div class="section">
-        <h3>Broadcast Notification Banner</h3>
-        <label>Announcement Message:</label>
-        <input type="text" id="notice-input" placeholder="e.g. ⚡ 50% OFF SALE THIS WEEKEND ONLY!">
-        <button id="save-notice" style="background: #ffc107; color: #000;">Post Broadcast Message</button>
-        <button id="clear-notice" class="delete-btn">Clear Notification</button>
-    </div>
 
 <div id="auth-overlay">
     <div class="auth-card">
@@ -37,6 +29,15 @@
 
 <div class="container">
     <h1>Admin Panel</h1>
+
+    <!-- Notification Broadcast Control -->
+    <div class="section">
+        <h3>Broadcast Notification Banner</h3>
+        <label>Announcement Message:</label>
+        <input type="text" id="notice-input" placeholder="e.g. ⚡ 50% OFF SALE THIS WEEKEND ONLY!">
+        <button id="save-notice" style="background: #ffc107; color: #000;">Post Broadcast Message</button>
+        <button id="clear-notice" class="delete-btn">Clear Notification</button>
+    </div>
 
     <!-- SMP Server Name Settings -->
     <div class="section">
@@ -151,11 +152,33 @@
     document.getElementById('login-btn').addEventListener('click', () => {
         if (document.getElementById('admin-pass').value === "ahsan321") {
             document.getElementById('auth-overlay').style.display = "none";
+            loadNotice();
             loadSocials();
             loadAllRanksIntoSelect();
         } else {
             alert("Incorrect password!");
         }
+    });
+
+    // --- Notification Broadcast Logic ---
+    async function loadNotice() {
+        const docSnap = await getDoc(doc(db, "settings", "notice"));
+        if (docSnap.exists() && docSnap.data().text) {
+            document.getElementById('notice-input').value = docSnap.data().text;
+        }
+    }
+
+    document.getElementById('save-notice').addEventListener('click', async () => {
+        const text = document.getElementById('notice-input').value.trim();
+        if (!text) return alert("Please enter a notice message.");
+        await setDoc(doc(db, "settings", "notice"), { text: text }, { merge: true });
+        alert('Broadcast notification published to store!');
+    });
+
+    document.getElementById('clear-notice').addEventListener('click', async () => {
+        await setDoc(doc(db, "settings", "notice"), { text: "" }, { merge: true });
+        document.getElementById('notice-input').value = "";
+        alert('Notification cleared from store!');
     });
 
     // Custom File Readers
