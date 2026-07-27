@@ -13,6 +13,8 @@
         button.delete-btn { background: #dc3545; margin-top: 10px; }
         #auth-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .auth-card { background: #1e1e1e; padding: 25px; border-radius: 8px; width: 300px; text-align: center; border: 1px solid #333; }
+        .logo-preview { width: 40px; height: 40px; margin-top: 5px; object-fit: contain; vertical-align: middle; }
+        .custom-file-box { background: #222; border: 1px dashed #555; padding: 10px; margin: 8px 0; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -62,18 +64,28 @@
         <label>Price ($):</label>
         <input type="text" id="rank-price-input" placeholder="Price">
 
-        <label>Rank Icon Logo:</label>
+        <label>Choose Item Icon Logo:</label>
         <select id="rank-logo-select">
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/obsidian.png">Obsidian</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_ingot.png">Netherite Ingot</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png">Eye of Ender</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png">Golden Apple</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_sword.png">Gold Sword 🗡️</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_sword.png">Diamond Sword 🗡️</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_sword.png">Netherite Sword 🗡️</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond 💎</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate 👕</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_helmet.png">Gold Helmet 🪖</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon 🚨</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png">Eye of Ender 👁️</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star ⭐</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png">Golden Apple 🍏</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald 🟢</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/totem_of_undying.png">Totem of Undying 🗿</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/elytra.png">Elytra 🪽</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/bow.png">Bow 🏹</option>
         </select>
+
+        <div class="custom-file-box">
+            <label>Or Upload Custom Image Logo File (.png, .jpg, .svg):</label>
+            <input type="file" id="rank-logo-upload" accept="image/*">
+        </div>
 
         <label>Benefits (comma separated):</label>
         <input type="text" id="rank-benefits-input" placeholder="Fly, Kit VIP, 5x Homes">
@@ -88,14 +100,23 @@
         <input type="text" id="new-rank-id" placeholder="Rank Key ID (e.g. LEGEND)">
         <input type="text" id="new-rank-title" placeholder="Display Title Name">
         <input type="text" id="new-rank-price" placeholder="Price ($)">
+        
+        <label>Choose Item Icon Logo:</label>
         <select id="new-rank-logo">
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/obsidian.png">Obsidian</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_sword.png">Gold Sword 🗡️</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_sword.png">Diamond Sword 🗡️</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond 💎</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate 👕</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon 🚨</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star ⭐</option>
+            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald 🟢</option>
         </select>
+
+        <div class="custom-file-box">
+            <label>Or Upload Custom Image File (.png, .jpg, .svg):</label>
+            <input type="file" id="new-rank-logo-upload" accept="image/*">
+        </div>
+
         <input type="text" id="new-rank-benefits" placeholder="Benefits (comma separated)">
         <button id="create-rank" style="background: #28a745;">Add New Rank</button>
     </div>
@@ -103,8 +124,22 @@
 
 <script type="module">
     import { db } from './firebase-config.js';
-    import { doc, setDoc, getDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    let customEditLogoBase64 = null;
+    let customNewLogoBase64 = null;
+
+    // Helper function to read uploaded image as Base64 string
+    function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Auth Login
     document.getElementById('login-btn').addEventListener('click', () => {
         if (document.getElementById('admin-pass').value === "ahsan321") {
             document.getElementById('auth-overlay').style.display = "none";
@@ -112,6 +147,23 @@
             loadAllRanksIntoSelect();
         } else {
             alert("Incorrect password!");
+        }
+    });
+
+    // Custom File Readers
+    document.getElementById('rank-logo-upload').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            customEditLogoBase64 = await readFileAsDataURL(file);
+            alert("Custom image uploaded and ready to save!");
+        }
+    });
+
+    document.getElementById('new-rank-logo-upload').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            customNewLogoBase64 = await readFileAsDataURL(file);
+            alert("Custom image uploaded for new rank!");
         }
     });
 
@@ -134,7 +186,7 @@
         }
     }
 
-    // Save Social Media Links
+    // Save Social Links
     document.getElementById('save-socials').addEventListener('click', async () => {
         await setDoc(doc(db, "settings", "socials"), {
             discord: document.getElementById('discord-input').value.trim(),
@@ -144,7 +196,7 @@
         alert('Social links updated successfully!');
     });
 
-    // Load ranks into select dropdown
+    // Load Ranks into dropdown
     async function loadAllRanksIntoSelect() {
         const select = document.getElementById('rank-select');
         select.innerHTML = '';
@@ -172,6 +224,9 @@
         const selectedRank = document.getElementById('rank-select').value;
         if (!selectedRank) return;
 
+        customEditLogoBase64 = null; // Reset custom file
+        document.getElementById('rank-logo-upload').value = "";
+
         const docSnap = await getDoc(doc(db, "ranks", selectedRank));
 
         if (docSnap.exists() && !docSnap.data().deleted) {
@@ -179,7 +234,9 @@
             document.getElementById('rank-display-title').value = data.title || selectedRank;
             document.getElementById('rank-price-input').value = data.price || '';
             document.getElementById('rank-benefits-input').value = (data.benefits || []).join(', ');
-            if (data.logo) document.getElementById('rank-logo-select').value = data.logo;
+            if (data.logo && !data.logo.startsWith('data:image')) {
+                document.getElementById('rank-logo-select').value = data.logo;
+            }
         } else {
             document.getElementById('rank-display-title').value = selectedRank;
             document.getElementById('rank-price-input').value = '';
@@ -194,10 +251,13 @@
         const rankKey = document.getElementById('rank-select').value;
         if (!rankKey) return;
 
+        // Choose uploaded file if provided, otherwise fallback to dropdown
+        const chosenLogo = customEditLogoBase64 || document.getElementById('rank-logo-select').value;
+
         await setDoc(doc(db, "ranks", rankKey), {
             title: document.getElementById('rank-display-title').value.trim() || rankKey,
             price: document.getElementById('rank-price-input').value.trim(),
-            logo: document.getElementById('rank-logo-select').value,
+            logo: chosenLogo,
             benefits: document.getElementById('rank-benefits-input').value.split(',').map(s => s.trim()).filter(Boolean),
             deleted: false
         }, { merge: true });
@@ -205,13 +265,12 @@
         alert(`${rankKey} rank saved successfully!`);
     });
 
-    // Remove / Delete Rank Button
+    // Remove / Delete Rank
     document.getElementById('delete-rank').addEventListener('click', async () => {
         const rankKey = document.getElementById('rank-select').value;
         if (!rankKey) return;
 
         if (confirm(`Are you sure you want to remove the "${rankKey}" rank from the store?`)) {
-            // Delete document or mark deleted flag for default keys
             await setDoc(doc(db, "ranks", rankKey), { deleted: true }, { merge: true });
             alert(`Rank "${rankKey}" has been removed!`);
             loadAllRanksIntoSelect();
@@ -223,15 +282,19 @@
         const rankKey = document.getElementById('new-rank-id').value.trim().toUpperCase();
         if(!rankKey) return alert("Please enter a Rank Key ID!");
 
+        const chosenLogo = customNewLogoBase64 || document.getElementById('new-rank-logo').value;
+
         await setDoc(doc(db, "ranks", rankKey), {
             title: document.getElementById('new-rank-title').value.trim() || rankKey,
             price: document.getElementById('new-rank-price').value.trim(),
-            logo: document.getElementById('new-rank-logo').value,
+            logo: chosenLogo,
             benefits: document.getElementById('new-rank-benefits').value.split(',').map(s => s.trim()).filter(Boolean),
             deleted: false
         }, { merge: true });
 
         alert(`New rank "${rankKey}" created!`);
+        customNewLogoBase64 = null;
+        document.getElementById('new-rank-logo-upload').value = "";
         loadAllRanksIntoSelect();
     });
 </script>
