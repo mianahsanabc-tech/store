@@ -2,101 +2,582 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - BRINE SMP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BRINE SMP</title>
     <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=VT323&display=swap" rel="stylesheet">
     <style>
-        body { background: #121212; color: #fff; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 650px; margin: auto; }
-        .section { background: #1e1e1e; padding: 20px; margin-bottom: 20px; border-radius: 6px; border: 1px solid #333; }
-        input, select { padding: 10px; margin: 8px 0; width: 100%; box-sizing: border-box; background: #2b2b2b; color: white; border: 1px solid #444; border-radius: 4px; }
-        button { background: #007bff; color: white; border: none; padding: 12px; cursor: pointer; width: 100%; margin-top: 8px; border-radius: 4px; font-weight: bold; }
-        button.delete-btn { background: #dc3545; margin-top: 10px; }
-        #auth-overlay { position: fixed; inset: 0; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .auth-card { background: #1e1e1e; padding: 25px; border-radius: 8px; width: 300px; text-align: center; border: 1px solid #333; }
-        .logo-preview { width: 40px; height: 40px; margin-top: 5px; object-fit: contain; vertical-align: middle; }
-        .custom-file-box { background: #222; border: 1px dashed #555; padding: 10px; margin: 8px 0; border-radius: 4px; }
+        :root {
+            --bg-main: #090b10;
+            --bg-card: rgba(22, 27, 38, 0.75);
+            --bg-card-border: rgba(255, 255, 255, 0.08);
+            --bg-input: #0f131d;
+            --accent-cyan: #00f2fe;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+                url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/deepslate.png');
+            background-blend-mode: overlay;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        /* Authentication Modal */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 6, 12, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .auth-card {
+            background: #131722;
+            border: 1px solid var(--bg-card-border);
+            border-top: 3px solid var(--accent-cyan);
+            border-radius: 16px;
+            padding: 35px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+
+        .auth-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .auth-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* Container Grid */
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        header.admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bg-card-border);
+        }
+
+        header.admin-header h1 {
+            font-family: 'VT323', monospace;
+            font-size: 42px;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 24px;
+        }
+
+        @media (max-width: 580px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Card Section Styling */
+        .section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.2s ease;
+        }
+
+        .section:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        /* Inputs & Labels */
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 14px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.15);
+        }
+
+        /* Switch Toggles */
+        .social-row {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0;
+            margin-bottom: 8px;
+            cursor: pointer;
+            text-transform: none;
+            color: var(--text-main);
+            font-size: 15px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #334155;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--accent-green); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Buttons */
+        button {
+            width: 100%;
+            padding: 12px 16px;
+            margin-top: 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--accent-cyan); color: #000; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-success { background: var(--accent-green); color: #000; }
+        .btn-success:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-warning { background: var(--accent-amber); color: #000; }
+        .btn-warning:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: var(--accent-red); color: #fff; }
+
+        /* Upload Container */
+        .custom-file-box {
+            background: var(--bg-input);
+            border: 1px dashed var(--bg-card-border);
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        input[type="file"] {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10000;
+        }
+
+        .toast {
+            background: #1e293b;
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-cyan);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-top: 10px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
+<!-- Authentication Overlay -->
 <div id="auth-overlay">
     <div class="auth-card">
-        <h3>Admin Authentication</h3>
-        <input type="password" id="admin-pass" placeholder="Password">
-        <button id="login-btn">Login</button>
+        <h3>🛡️ Control Panel</h3>
+        <p>Enter administrative access credentials</p>
+        <input type="password" id="admin-pass" placeholder="Enter Password">
+        <button id="login-btn" class="btn-primary">Unlock Access</button>
     </div>
 </div>
 
 <div class="container">
-    <h1>Admin Panel</h1>
+    <header class="admin-header">
+        <h1>BRINE SMP DASHBOARD</h1>
+        <span style="color: var(--text-muted); font-size: 14px;">v2.5 Live Sync</span>
+    </header>
 
-    <!-- Notification Broadcast Control -->
-    <div class="section">
-        <h3>Broadcast Notification Banner</h3>
-        <label>Announcement Message:</label>
-        <input type="text" id="notice-input" placeholder="e.g. ⚡ 50% OFF SALE THIS WEEKEND ONLY!">
-        <button id="save-notice" style="background: #ffc107; color: #000;">Post Broadcast Message</button>
-        <button id="clear-notice" class="delete-btn">Clear Notification</button>
-    </div>
+    <div class="dashboard-grid">
+        
+        <!-- Broadcast Notification Control -->
+        <div class="section">
+            <div class="section-header">
+                <h3>📢 Broadcast Announcement</h3>
+            </div>
+            <label>Store Banner Notice</label>
+            <input type="text" id="notice-input" placeholder="e.g. ⚡ 50% OFF SALE THIS WEEKEND ONLY!">
+            <button id="save-notice" class="btn-warning">Publish Broadcast Banner</button>
+            <button id="clear-notice" class="btn-danger">Clear Active Broadcast</button>
+        </div>
 
-    <!-- SMP Server Name Settings -->
-    <div class="section">
-        <h3>Server Name Settings</h3>
-        <input type="text" id="smp-name-input" placeholder="BRINE SMP">
-        <button id="save-smp-name">Update SMP Server Name</button>
-    </div>
-    <!-- Social Links & Visibility Management -->
-<div class="admin-card">
-    <h2>Social Links & Settings</h2>
-    
-    <!-- Discord -->
-    <div class="form-group">
-        <label>
-            <input type="checkbox" id="enable-discord"> Enable Discord Icon
-        </label>
-        <input type="text" id="discord-url" placeholder="https://discord.gg/yourserver">
-    </div>
+        <!-- SMP Server Settings -->
+        <div class="section">
+            <div class="section-header">
+                <h3>🖥️ Server Identity</h3>
+            </div>
+            <label>Server Title Banner</label>
+            <input type="text" id="smp-name-input" placeholder="BRINE SMP">
+            <button id="save-smp-name" class="btn-primary">Update Server Title</button>
+        </div>
 
-    <!-- YouTube -->
-    <div class="form-group">
-        <label>
-            <input type="checkbox" id="enable-youtube"> Enable YouTube Icon
-        </label>
-        <input type="text" id="youtube-url" placeholder="https://youtube.com/@yourchannel">
-    </div>
+        <!-- Unified Social Links & Visibility Switcher -->
+        <div class="section" style="grid-column: span 1 / -1;">
+            <div class="section-header">
+                <h3>🌐 Social Links & Visibility Controls</h3>
+            </div>
 
-    <!-- TikTok -->
-    <div class="form-group">
-        <label>
-            <input type="checkbox" id="enable-tiktok"> Enable TikTok Icon
-        </label>
-        <input type="text" id="tiktok-url" placeholder="https://tiktok.com/@yourprofile">
-    </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                <!-- Discord -->
+                <div class="social-row">
+                    <label class="toggle-label">
+                        <span>Discord Link</span>
+                        <div class="switch">
+                            <input type="checkbox" id="enable-discord">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                    <input type="text" id="discord-url" placeholder="https://discord.gg/yourserver">
+                </div>
 
-    <!-- Instagram -->
-    <div class="form-group">
-        <label>
-            <input type="checkbox" id="enable-instagram"> Enable Instagram Icon
-        </label>
-        <input type="text" id="instagram-url" placeholder="https://instagram.com/yourhandle">
-    </div>
+                <!-- YouTube -->
+                <div class="social-row">
+                    <label class="toggle-label">
+                        <span>YouTube Link</span>
+                        <div class="switch">
+                            <input type="checkbox" id="enable-youtube">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                    <input type="text" id="youtube-url" placeholder="https://youtube.com/@yourchannel">
+                </div>
 
-    <button id="save-socials-btn">Save Social Settings</button>
+                <!-- TikTok -->
+                <div class="social-row">
+                    <label class="toggle-label">
+                        <span>TikTok Link</span>
+                        <div class="switch">
+                            <input type="checkbox" id="enable-tiktok">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                    <input type="text" id="tiktok-url" placeholder="https://tiktok.com/@yourprofile">
+                </div>
+
+                <!-- Instagram -->
+                <div class="social-row">
+                    <label class="toggle-label">
+                        <span>Instagram Link</span>
+                        <div class="switch">
+                            <input type="checkbox" id="enable-instagram">
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+                    <input type="text" id="instagram-url" placeholder="https://instagram.com/yourhandle">
+                </div>
+            </div>
+
+            <button id="save-socials-btn" class="btn-primary">Save All Social Settings</button>
+        </div>
+
+        <!-- Voting Sites Management -->
+        <div class="section">
+            <div class="section-header">
+                <h3>🗳️ Edit Voting Site</h3>
+            </div>
+            <label>Select Voting Platform</label>
+            <select id="vote-site-select"></select>
+
+            <label>Site Label</label>
+            <input type="text" id="vote-site-name" placeholder="e.g. Planet Minecraft">
+
+            <label>Voting URL</label>
+            <input type="text" id="vote-site-url" placeholder="https://planetminecraft.com/server/...">
+
+            <button id="save-vote-site" class="btn-primary">Update Voting Site</button>
+            <button id="delete-vote-site" class="btn-danger">Remove Selected Site</button>
+        </div>
+
+        <!-- Add New Voting Site -->
+        <div class="section">
+            <div class="section-header">
+                <h3>➕ Add Voting Site</h3>
+            </div>
+            <label>Site Label</label>
+            <input type="text" id="new-vote-name" placeholder="Site Name (e.g. MinecraftMP)">
+            
+            <label>Voting Link</label>
+            <input type="text" id="new-vote-url" placeholder="URL Link (https://minecraft-mp.com/...)">
+            
+            <button id="add-vote-site" class="btn-success">Add Voting Platform</button>
+        </div>
+
+        <!-- Existing Ranks Editor -->
+        <div class="section">
+            <div class="section-header">
+                <h3>💎 Edit Existing Rank</h3>
+            </div>
+            <label>Select Rank Key</label>
+            <select id="rank-select"></select>
+
+            <label>Display Title</label>
+            <input type="text" id="rank-display-title" placeholder="Display Title">
+
+            <label>Price ($)</label>
+            <input type="text" id="rank-price-input" placeholder="Price">
+
+            <label>Preset Item Icon</label>
+            <select id="rank-logo-select">
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_sword.png">Gold Sword 🗡️</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_sword.png">Diamond Sword 🗡️</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_sword.png">Netherite Sword 🗡️</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond 💎</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate 👕</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_helmet.png">Gold Helmet 🪖</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon 🚨</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png">Eye of Ender 👁️</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star ⭐</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png">Golden Apple 🍏</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald 🟢</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/totem_of_undying.png">Totem of Undying 🗿</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/elytra.png">Elytra 🪽</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/bow.png">Bow 🏹</option>
+            </select>
+
+            <div class="custom-file-box">
+                <label>Or Upload Image (.png, .jpg, .svg)</label>
+                <input type="file" id="rank-logo-upload" accept="image/*">
+            </div>
+
+            <label>Benefits (comma separated)</label>
+            <input type="text" id="rank-benefits-input" placeholder="Fly, Kit VIP, 5x Homes">
+
+            <button id="save-rank" class="btn-primary">Save Rank Updates</button>
+            <button id="delete-rank" class="btn-danger">Delete Selected Rank</button>
+        </div>
+
+        <!-- Create New Rank -->
+        <div class="section">
+            <div class="section-header">
+                <h3>✨ Create Custom Rank</h3>
+            </div>
+            <label>Rank ID Key</label>
+            <input type="text" id="new-rank-id" placeholder="Rank Key ID (e.g. LEGEND)">
+            
+            <label>Display Name</label>
+            <input type="text" id="new-rank-title" placeholder="Display Title Name">
+            
+            <label>Price ($)</label>
+            <input type="text" id="new-rank-price" placeholder="Price ($)">
+            
+            <label>Preset Icon</label>
+            <select id="new-rank-logo">
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_sword.png">Gold Sword 🗡️</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_sword.png">Diamond Sword 🗡️</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond 💎</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate 👕</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon 🚨</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star ⭐</option>
+                <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald 🟢</option>
+            </select>
+
+            <div class="custom-file-box">
+                <label>Or Upload Image (.png, .jpg, .svg)</label>
+                <input type="file" id="new-rank-logo-upload" accept="image/*">
+            </div>
+
+            <label>Benefits List</label>
+            <input type="text" id="new-rank-benefits" placeholder="Benefits (comma separated)">
+            
+            <button id="create-rank" class="btn-success">Publish New Rank</button>
+        </div>
+
+    </div>
 </div>
+
+<div id="toast-container"></div>
 
 <script type="module">
     import { db } from './firebase-config.js';
-    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const socialsRef = doc(db, "settings", "socials");
+    let customEditLogoBase64 = null;
+    let customNewLogoBase64 = null;
+    let votingSitesCache = {};
 
-    // Load current values and checkbox statuses
+    function showToast(message, isError = false) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        if (isError) toast.style.borderLeftColor = 'var(--accent-red)';
+        toast.innerText = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    function readFileAsDataURL(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Authentication Login
+    document.getElementById('login-btn').addEventListener('click', () => {
+        if (document.getElementById('admin-pass').value === "ahsan321") {
+            document.getElementById('auth-overlay').style.display = "none";
+            loadNotice();
+            loadSocialSettings();
+            loadVotingSites();
+            loadAllRanksIntoSelect();
+            showToast("Welcome back, Admin!");
+        } else {
+            showToast("Invalid password!", true);
+        }
+    });
+
+    // Broadcast Notice
+    async function loadNotice() {
+        try {
+            const docSnap = await getDoc(doc(db, "settings", "notice"));
+            if (docSnap.exists() && docSnap.data().text) {
+                document.getElementById('notice-input').value = docSnap.data().text;
+            }
+        } catch (error) { console.error("Error loading notice:", error); }
+    }
+
+    document.getElementById('save-notice').addEventListener('click', async () => {
+        const text = document.getElementById('notice-input').value.trim();
+        if (!text) return showToast("Please enter a notice message.", true);
+        try {
+            await setDoc(doc(db, "settings", "notice"), { text: text }, { merge: true });
+            showToast("Broadcast notification published!");
+        } catch (error) { showToast("Failed to publish notification.", true); }
+    });
+
+    document.getElementById('clear-notice').addEventListener('click', async () => {
+        try {
+            await setDoc(doc(db, "settings", "notice"), { text: "" }, { merge: true });
+            document.getElementById('notice-input').value = "";
+            showToast("Broadcast notice cleared!");
+        } catch (error) { showToast("Failed to clear notification.", true); }
+    });
+
+    // Social Links & Switches
     async function loadSocialSettings() {
         try {
-            const docSnap = await getDoc(socialsRef);
+            const docSnap = await getDoc(doc(db, "settings", "socials"));
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                
                 document.getElementById('discord-url').value = data.discord || '';
                 document.getElementById('enable-discord').checked = data.discordEnabled ?? true;
 
@@ -109,15 +590,12 @@
                 document.getElementById('instagram-url').value = data.instagram || '';
                 document.getElementById('enable-instagram').checked = data.instagramEnabled ?? true;
             }
-        } catch (error) {
-            console.error("Error loading social settings:", error);
-        }
+        } catch (error) { console.error("Error loading social settings:", error); }
     }
 
-    // Save values and checkbox statuses
     document.getElementById('save-socials-btn').addEventListener('click', async () => {
         try {
-            await setDoc(socialsRef, {
+            await setDoc(doc(db, "settings", "socials"), {
                 discord: document.getElementById('discord-url').value.trim(),
                 discordEnabled: document.getElementById('enable-discord').checked,
 
@@ -131,196 +609,11 @@
                 instagramEnabled: document.getElementById('enable-instagram').checked
             }, { merge: true });
 
-            alert("Social links updated successfully!");
-        } catch (error) {
-            console.error("Error saving social settings:", error);
-            alert("Failed to save social settings.");
-        }
+            showToast("Social links updated successfully!");
+        } catch (error) { showToast("Failed to save social settings.", true); }
     });
 
-    loadSocialSettings();
-</script>
-
-    <!-- Social Media Links Management -->
-    <div class="section">
-        <h3>Social Links Management</h3>
-        <label>Discord Link:</label>
-        <input type="text" id="discord-input" placeholder="https://discord.gg/yourcode">
-        
-        <label>YouTube Link:</label>
-        <input type="text" id="youtube-input" placeholder="https://youtube.com/@yourchannel">
-        
-        <label>TikTok Link:</label>
-        <input type="text" id="tiktok-input" placeholder="https://tiktok.com/@youraccount">
-        
-        <button id="save-socials">Update Social Links</button>
-    </div>
-
-    <!-- Voting Sites Management -->
-    <div class="section">
-        <h3>Edit / Delete Voting Sites</h3>
-        <label>Select Voting Site:</label>
-        <select id="vote-site-select"></select>
-
-        <label>Site Name:</label>
-        <input type="text" id="vote-site-name" placeholder="e.g. Planet Minecraft">
-
-        <label>Vote URL Link:</label>
-        <input type="text" id="vote-site-url" placeholder="https://planetminecraft.com/server/...">
-
-        <button id="save-vote-site">Update Selected Voting Site</button>
-        <button id="delete-vote-site" class="delete-btn">Remove Selected Voting Site</button>
-    </div>
-
-    <div class="section">
-        <h3>Add New Voting Site</h3>
-        <input type="text" id="new-vote-name" placeholder="Site Name (e.g. MinecraftMP)">
-        <input type="text" id="new-vote-url" placeholder="URL Link (https://minecraft-mp.com/...)">
-        <button id="add-vote-site" style="background: #28a745;">Add Voting Site</button>
-    </div>
-
-    <!-- Dynamic Rank, Logo & Remove Rank Editor -->
-    <div class="section">
-        <h3>Edit / Delete Existing Rank</h3>
-        <label>Select Rank Key:</label>
-        <select id="rank-select"></select>
-
-        <label>Display Title:</label>
-        <input type="text" id="rank-display-title" placeholder="Display Title">
-
-        <label>Price ($):</label>
-        <input type="text" id="rank-price-input" placeholder="Price">
-
-        <label>Choose Item Icon Logo:</label>
-        <select id="rank-logo-select">
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_sword.png">Gold Sword 🗡️</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_sword.png">Diamond Sword 🗡️</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_sword.png">Netherite Sword 🗡️</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond 💎</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate 👕</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_helmet.png">Gold Helmet 🪖</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon 🚨</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png">Eye of Ender 👁️</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star ⭐</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png">Golden Apple 🍏</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald 🟢</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/totem_of_undying.png">Totem of Undying 🗿</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/elytra.png">Elytra 🪽</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/bow.png">Bow 🏹</option>
-        </select>
-
-        <div class="custom-file-box">
-            <label>Or Upload Custom Image Logo File (.png, .jpg, .svg):</label>
-            <input type="file" id="rank-logo-upload" accept="image/*">
-        </div>
-
-        <label>Benefits (comma separated):</label>
-        <input type="text" id="rank-benefits-input" placeholder="Fly, Kit VIP, 5x Homes">
-
-        <button id="save-rank">Save Rank Updates</button>
-        <button id="delete-rank" class="delete-btn">Remove / Delete Selected Rank</button>
-    </div>
-
-    <!-- Add New Custom Rank -->
-    <div class="section">
-        <h3>Create New Custom Rank</h3>
-        <input type="text" id="new-rank-id" placeholder="Rank Key ID (e.g. LEGEND)">
-        <input type="text" id="new-rank-title" placeholder="Display Title Name">
-        <input type="text" id="new-rank-price" placeholder="Price ($)">
-        
-        <label>Choose Item Icon Logo:</label>
-        <select id="new-rank-logo">
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_sword.png">Gold Sword 🗡️</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond_sword.png">Diamond Sword 🗡️</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png">Diamond 💎</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png">Netherite Chestplate 👕</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png">Beacon 🚨</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png">Nether Star ⭐</option>
-            <option value="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png">Emerald 🟢</option>
-        </select>
-
-        <div class="custom-file-box">
-            <label>Or Upload Custom Image File (.png, .jpg, .svg):</label>
-            <input type="file" id="new-rank-logo-upload" accept="image/*">
-        </div>
-
-        <input type="text" id="new-rank-benefits" placeholder="Benefits (comma separated)">
-        <button id="create-rank" style="background: #28a745;">Add New Rank</button>
-    </div>
-</div>
-
-<script type="module">
-    import { db } from './firebase-config.js';
-    import { doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    let customEditLogoBase64 = null;
-    let customNewLogoBase64 = null;
-    let votingSitesCache = {};
-
-    function readFileAsDataURL(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Auth Login
-    document.getElementById('login-btn').addEventListener('click', () => {
-        if (document.getElementById('admin-pass').value === "ahsan321") {
-            document.getElementById('auth-overlay').style.display = "none";
-            loadNotice();
-            loadSocials();
-            loadVotingSites();
-            loadAllRanksIntoSelect();
-        } else {
-            alert("Incorrect password!");
-        }
-    });
-
-    // --- Notification Broadcast Logic ---
-    async function loadNotice() {
-        try {
-            const docSnap = await getDoc(doc(db, "settings", "notice"));
-            if (docSnap.exists() && docSnap.data().text) {
-                document.getElementById('notice-input').value = docSnap.data().text;
-            }
-        } catch (error) {
-            console.error("Error loading notice:", error);
-        }
-    }
-
-    document.getElementById('save-notice').addEventListener('click', async () => {
-        const inputEl = document.getElementById('notice-input');
-        if (!inputEl) return alert("Error: Notice input field missing.");
-        
-        const text = inputEl.value.trim();
-        if (!text) return alert("Please enter a notice message.");
-        
-        try {
-            await setDoc(doc(db, "settings", "notice"), { text: text }, { merge: true });
-            alert('Broadcast notification published to store!');
-        } catch (error) {
-            console.error("Error saving notice:", error);
-            alert("Failed to publish notification. Check Firebase rules/console.");
-        }
-    });
-
-    document.getElementById('clear-notice').addEventListener('click', async () => {
-        const inputEl = document.getElementById('notice-input');
-        
-        try {
-            await setDoc(doc(db, "settings", "notice"), { text: "" }, { merge: true });
-            if (inputEl) inputEl.value = "";
-            alert('Notification cleared from store!');
-        } catch (error) {
-            console.error("Error clearing notice:", error);
-            alert("Failed to clear notification. Check Firebase rules/console.");
-        }
-    });
-
-    // --- Voting Sites Logic ---
+    // Voting Platforms
     async function loadVotingSites() {
         const select = document.getElementById('vote-site-select');
         select.innerHTML = '';
@@ -336,15 +629,12 @@
                 select.appendChild(opt);
             });
 
-            if (Object.keys(votingSitesCache).length > 0) {
-                fillVoteSiteForm();
-            } else {
+            if (Object.keys(votingSitesCache).length > 0) fillVoteSiteForm();
+            else {
                 document.getElementById('vote-site-name').value = '';
                 document.getElementById('vote-site-url').value = '';
             }
-        } catch (error) {
-            console.error("Error loading voting sites:", error);
-        }
+        } catch (error) { console.error("Error loading voting sites:", error); }
     }
 
     function fillVoteSiteForm() {
@@ -359,57 +649,45 @@
 
     document.getElementById('save-vote-site').addEventListener('click', async () => {
         const selectedId = document.getElementById('vote-site-select').value;
-        if (!selectedId) return alert("No voting site selected!");
+        if (!selectedId) return showToast("No voting site selected!", true);
 
         const name = document.getElementById('vote-site-name').value.trim();
         const url = document.getElementById('vote-site-url').value.trim();
-
-        if (!name || !url) return alert("Please fill out both Name and URL.");
+        if (!name || !url) return showToast("Fill out Name and URL.", true);
 
         try {
             await setDoc(doc(db, "votesites", selectedId), { name: name, url: url }, { merge: true });
-            alert("Voting site updated!");
+            showToast("Voting site updated!");
             loadVotingSites();
-        } catch (error) {
-            console.error("Error updating voting site:", error);
-            alert("Failed to update site.");
-        }
+        } catch (error) { showToast("Failed to update site.", true); }
     });
 
     document.getElementById('delete-vote-site').addEventListener('click', async () => {
         const selectedId = document.getElementById('vote-site-select').value;
-        if (!selectedId) return alert("No voting site selected!");
+        if (!selectedId) return showToast("No voting site selected!", true);
 
-        if (confirm("Are you sure you want to delete this voting site?")) {
+        if (confirm("Remove this voting site?")) {
             try {
                 await deleteDoc(doc(db, "votesites", selectedId));
-                alert("Voting site removed!");
+                showToast("Voting site removed!");
                 loadVotingSites();
-            } catch (error) {
-                console.error("Error deleting voting site:", error);
-                alert("Failed to remove voting site.");
-            }
+            } catch (error) { showToast("Failed to remove voting site.", true); }
         }
     });
 
     document.getElementById('add-vote-site').addEventListener('click', async () => {
         const name = document.getElementById('new-vote-name').value.trim();
         const url = document.getElementById('new-vote-url').value.trim();
-
-        if (!name || !url) return alert("Please enter both a Site Name and URL link.");
+        if (!name || !url) return showToast("Enter Site Name and URL.", true);
 
         const docId = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
-
         try {
             await setDoc(doc(db, "votesites", docId), { name: name, url: url });
-            alert("New voting site added!");
+            showToast("New voting site added!");
             document.getElementById('new-vote-name').value = '';
             document.getElementById('new-vote-url').value = '';
             loadVotingSites();
-        } catch (error) {
-            console.error("Error adding voting site:", error);
-            alert("Failed to add voting site.");
-        }
+        } catch (error) { showToast("Failed to add voting site.", true); }
     });
 
     // Custom File Readers
@@ -417,7 +695,7 @@
         const file = e.target.files[0];
         if (file) {
             customEditLogoBase64 = await readFileAsDataURL(file);
-            alert("Custom image uploaded and ready to save!");
+            showToast("Custom image uploaded and ready!");
         }
     });
 
@@ -425,44 +703,22 @@
         const file = e.target.files[0];
         if (file) {
             customNewLogoBase64 = await readFileAsDataURL(file);
-            alert("Custom image uploaded for new rank!");
+            showToast("Custom image ready for new rank!");
         }
     });
 
-    // Save SMP Name
+    // SMP Server Title
     document.getElementById('save-smp-name').addEventListener('click', async () => {
         const name = document.getElementById('smp-name-input').value.trim();
-        if (!name) return alert("Please enter an SMP name.");
+        if (!name) return showToast("Please enter an SMP name.", true);
         await setDoc(doc(db, "settings", "server"), { name: name }, { merge: true });
-        alert('Server name updated!');
+        showToast("Server title updated!");
     });
 
-    // Load Socials
-    async function loadSocials() {
-        const docSnap = await getDoc(doc(db, "settings", "socials"));
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (data.discord) document.getElementById('discord-input').value = data.discord;
-            if (data.youtube) document.getElementById('youtube-input').value = data.youtube;
-            if (data.tiktok) document.getElementById('tiktok-input').value = data.tiktok;
-        }
-    }
-
-    // Save Social Links
-    document.getElementById('save-socials').addEventListener('click', async () => {
-        await setDoc(doc(db, "settings", "socials"), {
-            discord: document.getElementById('discord-input').value.trim(),
-            youtube: document.getElementById('youtube-input').value.trim(),
-            tiktok: document.getElementById('tiktok-input').value.trim()
-        }, { merge: true });
-        alert('Social links updated successfully!');
-    });
-
-    // Load Ranks into dropdown
+    // Rank Controls
     async function loadAllRanksIntoSelect() {
         const select = document.getElementById('rank-select');
         select.innerHTML = '';
-        
         const defaultKeys = ['VIP', 'VIP+', 'VIP++', 'VIP+++'];
         const querySnap = await getDocs(collection(db, "ranks"));
         
@@ -490,7 +746,6 @@
         document.getElementById('rank-logo-upload').value = "";
 
         const docSnap = await getDoc(doc(db, "ranks", selectedRank));
-
         if (docSnap.exists() && !docSnap.data().deleted) {
             const data = docSnap.data();
             document.getElementById('rank-display-title').value = data.title || selectedRank;
@@ -508,13 +763,11 @@
 
     document.getElementById('rank-select').addEventListener('change', loadRankDetails);
 
-    // Save Rank Updates
     document.getElementById('save-rank').addEventListener('click', async () => {
         const rankKey = document.getElementById('rank-select').value;
         if (!rankKey) return;
 
         const chosenLogo = customEditLogoBase64 || document.getElementById('rank-logo-select').value;
-
         await setDoc(doc(db, "ranks", rankKey), {
             title: document.getElementById('rank-display-title').value.trim() || rankKey,
             price: document.getElementById('rank-price-input').value.trim(),
@@ -523,28 +776,25 @@
             deleted: false
         }, { merge: true });
 
-        alert(`${rankKey} rank saved successfully!`);
+        showToast(`${rankKey} rank saved successfully!`);
     });
 
-    // Remove / Delete Rank
     document.getElementById('delete-rank').addEventListener('click', async () => {
         const rankKey = document.getElementById('rank-select').value;
         if (!rankKey) return;
 
-        if (confirm(`Are you sure you want to remove the "${rankKey}" rank from the store?`)) {
+        if (confirm(`Remove rank "${rankKey}" from store?`)) {
             await setDoc(doc(db, "ranks", rankKey), { deleted: true }, { merge: true });
-            alert(`Rank "${rankKey}" has been removed!`);
+            showToast(`Rank "${rankKey}" deleted!`);
             loadAllRanksIntoSelect();
         }
     });
 
-    // Add New Custom Rank
     document.getElementById('create-rank').addEventListener('click', async () => {
         const rankKey = document.getElementById('new-rank-id').value.trim().toUpperCase();
-        if(!rankKey) return alert("Please enter a Rank Key ID!");
+        if(!rankKey) return showToast("Enter a Rank Key ID!", true);
 
         const chosenLogo = customNewLogoBase64 || document.getElementById('new-rank-logo').value;
-
         await setDoc(doc(db, "ranks", rankKey), {
             title: document.getElementById('new-rank-title').value.trim() || rankKey,
             price: document.getElementById('new-rank-price').value.trim(),
@@ -553,7 +803,7 @@
             deleted: false
         }, { merge: true });
 
-        alert(`New rank "${rankKey}" created!`);
+        showToast(`New rank "${rankKey}" published!`);
         customNewLogoBase64 = null;
         document.getElementById('new-rank-logo-upload').value = "";
         loadAllRanksIntoSelect();
