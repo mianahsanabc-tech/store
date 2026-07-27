@@ -162,23 +162,43 @@
 
     // --- Notification Broadcast Logic ---
     async function loadNotice() {
-        const docSnap = await getDoc(doc(db, "settings", "notice"));
-        if (docSnap.exists() && docSnap.data().text) {
-            document.getElementById('notice-input').value = docSnap.data().text;
+        try {
+            const docSnap = await getDoc(doc(db, "settings", "notice"));
+            if (docSnap.exists() && docSnap.data().text) {
+                document.getElementById('notice-input').value = docSnap.data().text;
+            }
+        } catch (error) {
+            console.error("Error loading notice:", error);
         }
     }
 
     document.getElementById('save-notice').addEventListener('click', async () => {
-        const text = document.getElementById('notice-input').value.trim();
+        const inputEl = document.getElementById('notice-input');
+        if (!inputEl) return alert("Error: Notice input field missing.");
+        
+        const text = inputEl.value.trim();
         if (!text) return alert("Please enter a notice message.");
-        await setDoc(doc(db, "settings", "notice"), { text: text }, { merge: true });
-        alert('Broadcast notification published to store!');
+        
+        try {
+            await setDoc(doc(db, "settings", "notice"), { text: text }, { merge: true });
+            alert('Broadcast notification published to store!');
+        } catch (error) {
+            console.error("Error saving notice:", error);
+            alert("Failed to publish notification. Check Firebase rules/console.");
+        }
     });
 
     document.getElementById('clear-notice').addEventListener('click', async () => {
-        await setDoc(doc(db, "settings", "notice"), { text: "" }, { merge: true });
-        document.getElementById('notice-input').value = "";
-        alert('Notification cleared from store!');
+        const inputEl = document.getElementById('notice-input');
+        
+        try {
+            await setDoc(doc(db, "settings", "notice"), { text: "" }, { merge: true });
+            if (inputEl) inputEl.value = "";
+            alert('Notification cleared from store!');
+        } catch (error) {
+            console.error("Error clearing notice:", error);
+            alert("Failed to clear notification. Check Firebase rules/console.");
+        }
     });
 
     // Custom File Readers
