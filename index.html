@@ -3,30 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>8 Ball Pool - Sign In</title>
+  <title>HIGH STAKES 3D POOL</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js (3D Graphics) & Cannon.js (3D Physics) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
 </head>
 <body>
 
-  <div class="auth-container">
-    <h1>🎱 8 Ball Pool</h1>
-    <p class="subtitle">Sign in to save coins, stats, and play real-time 1v1</p>
-
-    <div class="auth-tabs">
-      <button id="tab-login" class="active" onclick="switchAuthMode('login')">Login</button>
-      <button id="tab-register" onclick="switchAuthMode('register')">Register</button>
+  <!-- TOP HEADER HUD -->
+  <header class="hud-top">
+    <div class="player-card p1 active" id="p1-hud">
+      <div class="avatar">👤</div>
+      <div class="p-info">
+        <span class="p-name" id="p1-name">PLAYER 1</span>
+        <span class="p-type" id="p1-type">OPEN TABLE</span>
+      </div>
     </div>
 
-    <form id="auth-form" onsubmit="handleAuth(event)">
-      <input type="text" id="auth-username" placeholder="Username" required>
-      <input type="email" id="auth-email" placeholder="Email Address" required>
-      <input type="password" id="auth-password" placeholder="Password" required>
-      <button type="submit" id="auth-btn" class="btn-primary">Sign In</button>
-    </form>
+    <div class="match-badge">
+      <div class="jackpot">🔥 $1,000,000</div>
+      <div class="turn-indicator" id="turn-txt">PLAYER 1'S TURN</div>
+    </div>
 
-    <button onclick="playAsGuest()" class="btn-guest">Play as Guest</button>
+    <div class="player-card p2" id="p2-hud">
+      <div class="p-info align-right">
+        <span class="p-name">PLAYER 2</span>
+        <span class="p-type" id="p2-type">OPEN TABLE</span>
+      </div>
+      <div class="avatar">🤖</div>
+    </div>
+  </header>
+
+  <!-- 3D WEBGL CONTAINER -->
+  <div id="game-container"></div>
+
+  <!-- AIM & SHOT CONTROL BAR -->
+  <div class="controls-overlay">
+    <div class="power-bar-container">
+      <div class="power-bar-fill" id="powerBar"></div>
+      <span class="power-label">FORCE</span>
+    </div>
+
+    <div class="action-hints">
+      <p>🖱️ <strong>Left Click + Drag:</strong> Rotate Aim Line</p>
+      <p>⚡ <strong>Hold Space / Click Power Bar:</strong> Charge Shot</p>
+    </div>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <!-- VICTORY OVERLAY -->
+  <div id="victory-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h1 class="glow-text">VICTORY!</h1>
+      <p id="winner-text">PLAYER 1 CLEANED THE TABLE!</p>
+      <button onclick="location.reload()" class="btn-glow">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>
