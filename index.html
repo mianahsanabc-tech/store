@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8 Ball Pool - Sign In</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="auth-container">
+    <h1>🎱 8 Ball Pool</h1>
+    <p class="subtitle">Sign in to save coins, stats, and play real-time 1v1</p>
+
+    <div class="auth-tabs">
+      <button id="tab-login" class="active" onclick="switchAuthMode('login')">Login</button>
+      <button id="tab-register" onclick="switchAuthMode('register')">Register</button>
+    </div>
+
+    <form id="auth-form" onsubmit="handleAuth(event)">
+      <input type="text" id="auth-username" placeholder="Username" required>
+      <input type="email" id="auth-email" placeholder="Email Address" required>
+      <input type="password" id="auth-password" placeholder="Password" required>
+      <button type="submit" id="auth-btn" class="btn-primary">Sign In</button>
+    </form>
+
+    <button onclick="playAsGuest()" class="btn-guest">Play as Guest</button>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

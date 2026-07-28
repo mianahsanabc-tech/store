@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8 Ball Pool - Playing Match</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="game-page">
+
+  <div class="scoreboard">
+    <div class="player p1 active">
+      <div class="p-avatar">🎱</div>
+      <div>
+        <div class="p-name" id="p1-name">You</div>
+        <div class="p-type" id="p1-type">Solids</div>
+      </div>
+    </div>
+
+    <div class="vs-ring">VS</div>
+
+    <div class="player p2">
+      <div>
+        <div class="p-name" id="p2-name">Waiting...</div>
+        <div class="p-type" id="p2-type">Stripes</div>
+      </div>
+      <div class="p-avatar">👤</div>
+    </div>
+  </div>
+
+  <div class="table-frame" id="tableFrame">
+    <!-- Vertical Power Gauge -->
+    <div class="power-meter">
+      <div class="power-fill" id="powerFill"></div>
+    </div>
+
+    <!-- 2D Realistic Physics Canvas -->
+    <canvas id="poolCanvas" width="900" height="450"></canvas>
+  </div>
+
+  <div class="game-controls">
+    <a href="lobby.html" class="btn-cancel">Leave Table</a>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

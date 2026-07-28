@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8 Ball Pool - Choose Table</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="user-bar">
+    <div class="user-info">
+      <div class="avatar" id="user-avatar">👤</div>
+      <span id="user-name">Loading...</span>
+    </div>
+    <div class="coins-display">
+      🪙 <span id="user-coins">1000</span> Coins
+    </div>
+  </header>
+
+  <main class="lobby-wrapper">
+    <h2>Select Board Arena</h2>
+    <p class="subtitle">Win matches to earn coins and unlock higher arenas</p>
+
+    <div class="arena-grid">
+      <!-- Board 1 -->
+      <div class="arena-card pub">
+        <div class="arena-preview felt-green"></div>
+        <h3>Downtown Pub</h3>
+        <p>Entry: 🪙 100</p>
+        <p class="prize">Prize: 🪙 200</p>
+        <a href="game.html?arena=pub" class="btn-play">Play 1v1</a>
+      </div>
+
+      <!-- Board 2 -->
+      <div class="arena-card club">
+        <div class="arena-preview felt-blue"></div>
+        <h3>Tokyo Club</h3>
+        <p>Entry: 🪙 500</p>
+        <p class="prize">Prize: 🪙 1,000</p>
+        <a href="game.html?arena=tokyo" class="btn-play">Play 1v1</a>
+      </div>
+
+      <!-- Board 3 -->
+      <div class="arena-card red-room">
+        <div class="arena-preview felt-red"></div>
+        <h3>Las Vegas VIP</h3>
+        <p>Entry: 🪙 2,500</p>
+        <p class="prize">Prize: 🪙 5,000</p>
+        <a href="game.html?arena=vegas" class="btn-play">Play 1v1</a>
+      </div>
+
+      <!-- Board 4 -->
+      <div class="arena-card gold-lounge">
+        <div class="arena-preview felt-black"></div>
+        <h3>Black Gold Hall</h3>
+        <p>Entry: 🪙 10,000</p>
+        <p class="prize">Prize: 🪙 20,000</p>
+        <a href="game.html?arena=gold" class="btn-play">Play 1v1</a>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn-cancel" style="margin-top: 30px;">Sign Out</a>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
