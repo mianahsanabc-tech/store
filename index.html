@@ -165,13 +165,6 @@
   import { db } from './firebase-config.js';
   import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const DEFAULT_RANKS = [
-      { id: 'VIP', file: 'vip.html', title: 'VIP Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/netherite_chestplate.png' },
-      { id: 'VIP+', file: 'vip1.html', title: 'VIP+ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/beacon.png' },
-      { id: 'VIP++', file: 'vip2.html', title: 'VIP++ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/ender_eye.png' },
-      { id: 'VIP+++', file: 'vip3.html', title: 'VIP+++ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png' }
-  ];
-
   async function loadNotice() {
       try {
           const docSnap = await getDoc(doc(db, "settings", "notice"));
