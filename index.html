@@ -37,10 +37,25 @@
             font-size: 56px;
             color: #55FFFF;
             text-shadow: 4px 4px 0px #00AAAA, 0 0 25px rgba(85, 255, 255, 0.6);
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             letter-spacing: 5px;
             text-align: center;
             text-transform: uppercase;
+        }
+
+        .notification-banner {
+            display: none;
+            background: rgba(255, 170, 0, 0.15);
+            border: 2px solid #FFAA00;
+            color: #FFFF55;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            width: 488px;
+            font-size: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.4);
+            text-shadow: 2px 2px 0px #000;
         }
 
         .chest-container {
@@ -94,9 +109,7 @@
             box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.9);
         }
 
-        .slot.empty {
-            cursor: default;
-        }
+        .slot.empty { cursor: default; }
 
         .slot img {
             width: 32px;
@@ -106,9 +119,7 @@
             transition: transform 0.12s ease;
         }
 
-        .slot:hover:not(.empty) img {
-            transform: scale(1.18);
-        }
+        .slot:hover:not(.empty) img { transform: scale(1.18); }
 
         .tooltip {
             display: none;
@@ -131,24 +142,23 @@
 
         .tooltip .title { font-weight: bold; }
         .tooltip .subtitle { color: #AAAAAA; font-size: 16px; display: block; }
-
-        .slot:hover .tooltip {
-            display: block;
-        }
+        .slot:hover .tooltip { display: block; }
     </style>
 </head>
 <body>
 
 <div class="server-title" id="server-title-display">BRINE SMP</div>
 
+<div class="notification-banner" id="notice-banner">
+    🔔 <span id="notice-text">Welcome to the store!</span>
+</div>
+
 <div class="chest-container">
     <div class="chest-header">
         <span>Server Store</span>
     </div>
 
-    <div class="chest-grid" id="chest-grid-container">
-        <!-- Ranks & Links Dynamic Injection Area -->
-    </div>
+    <div class="chest-grid" id="chest-grid-container"></div>
 </div>
 
 <script type="module">
@@ -162,20 +172,27 @@
       { id: 'VIP+++', file: 'vip3.html', title: 'VIP+++ Rank', logo: 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/nether_star.png' }
   ];
 
+  async function loadNotice() {
+      try {
+          const docSnap = await getDoc(doc(db, "settings", "notice"));
+          if (docSnap.exists() && docSnap.data().text) {
+              document.getElementById('notice-text').innerText = docSnap.data().text;
+              document.getElementById('notice-banner').style.display = 'block';
+          }
+      } catch(e) { console.error(e); }
+  }
+
   async function initStore() {
       const grid = document.getElementById('chest-grid-container');
       grid.innerHTML = '';
 
-      // Fetch Ranks
-      const ranksSnap = await getDocs(collection(db, "ranks"));
-      const dbRanksMap = {};
-      ranksSnap.forEach(docSnap => {
-          dbRanksMap[docSnap.id] = docSnap.data();
-      });
+      let dbRanksMap = {};
+      try {
+          const ranksSnap = await getDocs(collection(db, "ranks"));
+          ranksSnap.forEach(docSnap => { dbRanksMap[docSnap.id] = docSnap.data(); });
+      } catch(e) { console.error("Error loading ranks:", e); }
 
       let allRankKeys = Array.from(new Set([...DEFAULT_RANKS.map(r => r.id), ...Object.keys(dbRanksMap)]));
-
-      // Filter out deleted ranks
       allRankKeys = allRankKeys.filter(key => dbRanksMap[key] === undefined || dbRanksMap[key].deleted !== true);
 
       const totalSlots = 27;
@@ -201,7 +218,7 @@
           slotsFilled++;
       });
 
-      // Vote Sites
+      // Vote Sites Slot
       const voteSlot = document.createElement('div');
       voteSlot.className = 'slot';
       voteSlot.onclick = () => location.href = 'vote.html';
@@ -212,52 +229,66 @@
       grid.appendChild(voteSlot);
       slotsFilled++;
 
-      // Discord (Official Logo)
-      const discordSlot = document.createElement('div');
-      discordSlot.className = 'slot';
-      discordSlot.onclick = async () => {
+      // Fetch Social Settings
+      let socials = {};
+      try {
           const docSnap = await getDoc(doc(db, "settings", "socials"));
-          if (docSnap.exists() && docSnap.data().discord) window.open(docSnap.data().discord, '_blank');
-          else alert("Discord link not configured!");
-      };
-      discordSlot.innerHTML = `
-          <img src="https://api.iconify.design/logos:discord-icon.svg" alt="Discord">
-          <div class="tooltip"><span class="title" style="color: #5865F2;">Discord</span><span class="subtitle">Join our community</span></div>
-      `;
-      grid.appendChild(discordSlot);
-      slotsFilled++;
+          if (docSnap.exists()) socials = docSnap.data();
+      } catch(e) { console.error(e); }
 
-      // YouTube (Official Logo)
-      const ytSlot = document.createElement('div');
-      ytSlot.className = 'slot';
-      ytSlot.onclick = async () => {
-          const docSnap = await getDoc(doc(db, "settings", "socials"));
-          if (docSnap.exists() && docSnap.data().youtube) window.open(docSnap.data().youtube, '_blank');
-          else alert("YouTube link not configured!");
-      };
-      ytSlot.innerHTML = `
-          <img src="https://api.iconify.design/logos:youtube-icon.svg" alt="YouTube">
-          <div class="tooltip"><span class="title" style="color: #FF0000;">YouTube</span><span class="subtitle">Subscribe on YouTube</span></div>
-      `;
-      grid.appendChild(ytSlot);
-      slotsFilled++;
+      // Discord
+      if (socials.discordEnabled ?? true) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.onclick = () => socials.discord ? window.open(socials.discord, '_blank') : alert("Discord link not configured!");
+          slot.innerHTML = `
+              <img src="https://api.iconify.design/logos:discord-icon.svg" alt="Discord">
+              <div class="tooltip"><span class="title" style="color: #5865F2;">Discord</span><span class="subtitle">Join our community</span></div>
+          `;
+          grid.appendChild(slot);
+          slotsFilled++;
+      }
 
-      // TikTok (Official Logo)
-      const ttSlot = document.createElement('div');
-      ttSlot.className = 'slot';
-      ttSlot.onclick = async () => {
-          const docSnap = await getDoc(doc(db, "settings", "socials"));
-          if (docSnap.exists() && docSnap.data().tiktok) window.open(docSnap.data().tiktok, '_blank');
-          else alert("TikTok link not configured!");
-      };
-      ttSlot.innerHTML = `
-          <img src="https://api.iconify.design/logos:tiktok-icon.svg" alt="TikTok">
-          <div class="tooltip"><span class="title" style="color: #00F2FE;">TikTok</span><span class="subtitle">Follow on TikTok</span></div>
-      `;
-      grid.appendChild(ttSlot);
-      slotsFilled++;
+      // YouTube
+      if (socials.youtubeEnabled ?? true) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.onclick = () => socials.youtube ? window.open(socials.youtube, '_blank') : alert("YouTube link not configured!");
+          slot.innerHTML = `
+              <img src="https://api.iconify.design/logos:youtube-icon.svg" alt="YouTube">
+              <div class="tooltip"><span class="title" style="color: #FF0000;">YouTube</span><span class="subtitle">Subscribe on YouTube</span></div>
+          `;
+          grid.appendChild(slot);
+          slotsFilled++;
+      }
 
-      // Empty Slots Fill
+      // TikTok
+      if (socials.tiktokEnabled ?? true) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.onclick = () => socials.tiktok ? window.open(socials.tiktok, '_blank') : alert("TikTok link not configured!");
+          slot.innerHTML = `
+              <img src="https://api.iconify.design/logos:tiktok-icon.svg" alt="TikTok">
+              <div class="tooltip"><span class="title" style="color: #00F2FE;">TikTok</span><span class="subtitle">Follow on TikTok</span></div>
+          `;
+          grid.appendChild(slot);
+          slotsFilled++;
+      }
+
+      // Instagram
+      if (socials.instagramEnabled ?? true) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.onclick = () => socials.instagram ? window.open(socials.instagram, '_blank') : alert("Instagram link not configured!");
+          slot.innerHTML = `
+              <img src="https://api.iconify.design/skill-icons:instagram.svg" alt="Instagram">
+              <div class="tooltip"><span class="title" style="color: #E1306C;">Instagram</span><span class="subtitle">Follow on Instagram</span></div>
+          `;
+          grid.appendChild(slot);
+          slotsFilled++;
+      }
+
+      // Fill remaining chest inventory slots
       while (slotsFilled < totalSlots - 1) {
           const emptySlot = document.createElement('div');
           emptySlot.className = 'slot empty';
@@ -265,7 +296,7 @@
           slotsFilled++;
       }
 
-      // Check Order Status Emerald Slot
+      // Order Status Slot (Last slot)
       const statusSlot = document.createElement('div');
       statusSlot.className = 'slot';
       statusSlot.onclick = () => location.href = 'status.html';
@@ -283,12 +314,11 @@
           if (docSnap.exists() && docSnap.data().name) {
               document.getElementById('server-title-display').innerText = docSnap.data().name;
           }
-      } catch(e) {
-          console.error(e);
-      }
+      } catch(e) { console.error(e); }
   }
 
   loadSMPName();
+  loadNotice();
   initStore();
 </script>
 </body>
