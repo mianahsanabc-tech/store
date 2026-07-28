@@ -3,316 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRINE SMP - Store</title>
+    <title>Server Store - Official Ranks & Packages</title>
     <link rel="icon" type="image/png" href="favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gui-bg: #c6c6c6;
-            --gui-border-dark: #2b2b2b;
-            --gui-border-light: #ffffff;
-            --slot-bg: #8b8b8b;
+            --bg-main: #06080e;
+            --bg-card: rgba(18, 24, 38, 0.85);
+            --bg-card-border: rgba(255, 255, 255, 0.08);
+            --bg-input: #0b0e17;
+            --accent-cyan: #00f2fe;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
         body {
-            background: #090a0f;
+            background-color: var(--bg-main);
             background-image: 
-                radial-gradient(circle at 50% 30%, rgba(18, 28, 45, 0.75) 0%, rgba(3, 3, 5, 0.98) 85%),
+                radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
                 url('https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/block/deepslate.png');
             background-blend-mode: overlay;
-            font-family: 'VT323', monospace;
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        header.store-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bg-card-border);
+        }
+
+        header.store-header h1 {
+            font-family: 'VT323', monospace;
+            font-size: 54px;
+            letter-spacing: 3px;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+            margin-bottom: 5px;
+        }
+
+        header.store-header p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        /* Ranks Grid */
+        .ranks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .rank-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #fff;
-            user-select: none;
-        }
-
-        .server-title {
-            font-size: 56px;
-            color: #55FFFF;
-            text-shadow: 4px 4px 0px #00AAAA, 0 0 25px rgba(85, 255, 255, 0.6);
-            margin-bottom: 15px;
-            letter-spacing: 5px;
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        .notification-banner {
-            display: none;
-            background: rgba(255, 170, 0, 0.15);
-            border: 2px solid #FFAA00;
-            color: #FFFF55;
-            padding: 8px 16px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            width: 488px;
-            font-size: 20px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(255, 170, 0, 0.4);
-            text-shadow: 2px 2px 0px #000;
-        }
-
-        .chest-container {
-            background: var(--gui-bg);
-            border: 4px solid var(--gui-border-dark);
-            box-shadow: 
-                inset -4px -4px 0px #555555, 
-                inset 4px 4px 0px var(--gui-border-light), 
-                0 20px 60px rgba(0, 0, 0, 0.95);
-            padding: 14px;
-            border-radius: 4px;
-            width: 488px;
-        }
-
-        .chest-header {
-            color: #404040;
-            font-size: 28px;
-            margin-bottom: 12px;
-            padding-left: 4px;
-            text-shadow: 1px 1px 0px #fff;
-        }
-
-        .chest-grid {
-            display: grid;
-            grid-template-columns: repeat(9, 48px);
-            gap: 4px;
-            background: #8b8b8b;
-            padding: 6px;
-            border: 3px solid var(--gui-border-dark);
-            box-shadow: inset 3px 3px 0px #373737, inset -3px -3px 0px #ffffff;
-            justify-content: center;
-        }
-
-        .slot {
-            width: 48px;
-            height: 48px;
-            background: #8b8b8b;
-            border: 3px solid #373737;
-            border-right-color: #ffffff;
-            border-bottom-color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
+            justify-content: space-between;
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.5);
+            transition: transform 0.25s ease, border-color 0.25s ease;
             position: relative;
-            transition: background 0.1s;
+            overflow: hidden;
         }
 
-        .slot:hover:not(.empty) {
-            background: rgba(255, 255, 255, 0.45);
-            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.9);
+        .rank-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 40px -10px rgba(0, 242, 254, 0.2);
         }
 
-        .slot.empty { cursor: default; }
-
-        .slot img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.6));
-            transition: transform 0.12s ease;
+        .rank-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
         }
 
-        .slot:hover:not(.empty) img { transform: scale(1.18); }
+        .rank-price {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--accent-green);
+            margin-bottom: 15px;
+        }
 
-        .tooltip {
+        .rank-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+
+        .buy-btn {
+            background: var(--accent-cyan);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        .buy-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Order Modal */
+        #checkout-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 6, 12, 0.9);
+            backdrop-filter: blur(10px);
             display: none;
-            position: absolute;
-            bottom: 58px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(16, 0, 16, 0.95);
-            border: 3px solid #2b005e;
-            color: #ffffff;
-            padding: 6px 12px;
-            white-space: nowrap;
-            z-index: 1000;
-            font-size: 20px;
-            border-radius: 4px;
-            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.85);
-            pointer-events: none;
-            text-shadow: 2px 2px 0px #000;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
         }
 
-        .tooltip .title { font-weight: bold; }
-        .tooltip .subtitle { color: #AAAAAA; font-size: 16px; display: block; }
-        .slot:hover .tooltip { display: block; }
+        .modal-card {
+            background: #111522;
+            border: 1px solid var(--bg-card-border);
+            border-top: 3px solid var(--accent-cyan);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+        }
+
+        .modal-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 11px 14px;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel-btn {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-muted);
+            border: 1px solid var(--bg-card-border);
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 10000; }
+        .toast {
+            background: #1e293b;
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-cyan);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-top: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
-<div class="server-title" id="server-title-display">BRINE SMP</div>
+<div class="container">
+    <header class="store-header">
+        <h1>SERVER STORE</h1>
+        <p>Select your desired rank or package below to place an order.</p>
+    </header>
 
-<div class="notification-banner" id="notice-banner">
-    🔔 <span id="notice-text">Welcome to the store!</span>
-</div>
-
-<div class="chest-container">
-    <div class="chest-header">
-        <span>Server Store</span>
+    <!-- Dynamic Ranks Grid (Populated from Firebase Admin Panel additions) -->
+    <div id="ranks-container" class="ranks-grid">
+        <p style="color: var(--text-muted); grid-column: 1 / -1; text-align: center;">Loading store packages...</p>
     </div>
-
-    <div class="chest-grid" id="chest-grid-container"></div>
 </div>
+
+<!-- Purchase Modal -->
+<div id="checkout-modal">
+    <div class="modal-card">
+        <h3>Complete Your Order</h3>
+        <form id="order-form">
+            <div class="form-group">
+                <label>Selected Package</label>
+                <input type="text" id="selected-rank" readonly style="opacity: 0.7; cursor: not-allowed;">
+            </div>
+            <div class="form-group">
+                <label>In-Game Name (Minecraft IGN)</label>
+                <input type="text" id="player-ign" placeholder="e.g. Steve" required>
+            </div>
+            <div class="form-group">
+                <label>Payment Proof Image URL</label>
+                <input type="text" id="proof-url" placeholder="https://i.imgur.com/example.png" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="buy-btn" style="flex: 1;">Submit Order</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast-container"></div>
 
 <script type="module">
-  import { db } from './firebase-config.js';
-  import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { db } from './firebase-config.js';
+    import { collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  async function loadNotice() {
-      try {
-          const docSnap = await getDoc(doc(db, "settings", "notice"));
-          if (docSnap.exists() && docSnap.data().text) {
-              document.getElementById('notice-text').innerText = docSnap.data().text;
-              document.getElementById('notice-banner').style.display = 'block';
-          }
-      } catch(e) { console.error(e); }
-  }
+    function showToast(message, isError = false) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        if (isError) toast.style.borderLeftColor = 'var(--accent-amber)';
+        toast.innerText = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
 
-  async function initStore() {
-      const grid = document.getElementById('chest-grid-container');
-      grid.innerHTML = '';
+    // Fetch and render ranks from the Firestore database added via Admin Panel
+    async function loadStoreRanks() {
+        const container = document.getElementById('ranks-container');
+        
+        try {
+            // Adjust "ranks" if your Admin Panel saves to a different collection name
+            const querySnapshot = await getDocs(collection(db, "ranks"));
+            container.innerHTML = '';
 
-      let dbRanksMap = {};
-      try {
-          const ranksSnap = await getDocs(collection(db, "ranks"));
-          ranksSnap.forEach(docSnap => { dbRanksMap[docSnap.id] = docSnap.data(); });
-      } catch(e) { console.error("Error loading ranks:", e); }
+            if (querySnapshot.empty) {
+                container.innerHTML = `<p style="color: var(--text-muted); grid-column: 1 / -1; text-align: center; padding: 40px;">No ranks available in the store right now.</p>`;
+                return;
+            }
 
-      let allRankKeys = Array.from(new Set([...DEFAULT_RANKS.map(r => r.id), ...Object.keys(dbRanksMap)]));
-      allRankKeys = allRankKeys.filter(key => dbRanksMap[key] === undefined || dbRanksMap[key].deleted !== true);
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                
+                const card = document.createElement('div');
+                card.className = 'rank-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="rank-title">${data.name || data.rankName || 'Rank Package'}</div>
+                        <div class="rank-price">${data.price ? '$' + data.price : 'Free / Custom'}</div>
+                        <div class="rank-desc">${data.description || data.perks || 'No description available.'}</div>
+                    </div>
+                    <button class="buy-btn" onclick="openModal('${data.name || data.rankName}')">Purchase Package</button>
+                `;
+                container.appendChild(card);
+            });
 
-      const totalSlots = 27;
-      let slotsFilled = 0;
+        } catch (e) {
+            console.error("Error fetching store items:", e);
+            container.innerHTML = `<p style="color: #ef4444; grid-column: 1 / -1; text-align: center;">Failed to load store items. Please check Firebase configuration.</p>`;
+        }
+    }
 
-      // Render Ranks
-      allRankKeys.forEach(key => {
-          const rankData = dbRanksMap[key] || {};
-          const defaultRef = DEFAULT_RANKS.find(r => r.id === key);
+    // Modal Helpers
+    window.openModal = function(rankName) {
+        document.getElementById('selected-rank').value = rankName;
+        document.getElementById('checkout-modal').style.display = 'flex';
+    };
 
-          const logo = rankData.logo || (defaultRef ? defaultRef.logo : 'https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/diamond.png');
-          const title = rankData.title || (defaultRef ? defaultRef.title : key);
-          const link = defaultRef ? defaultRef.file : `vip.html?rank=${encodeURIComponent(key)}`;
+    window.closeModal = function() {
+        document.getElementById('checkout-modal').style.display = 'none';
+        document.getElementById('order-form').reset();
+    };
 
-          const slot = document.createElement('div');
-          slot.className = 'slot';
-          slot.onclick = () => location.href = link;
-          slot.innerHTML = `
-              <img src="${logo}" alt="${title}">
-              <div class="tooltip"><span class="title" style="color: #55FF55;">${title}</span><span class="subtitle">Click to view rank</span></div>
-          `;
-          grid.appendChild(slot);
-          slotsFilled++;
-      });
+    // Submit Order to Firestore
+    document.getElementById('order-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const rankName = document.getElementById('selected-rank').value;
+        const ign = document.getElementById('player-ign').value.trim();
+        const proofUrl = document.getElementById('proof-url').value.trim();
 
-      // Vote Sites Slot
-      const voteSlot = document.createElement('div');
-      voteSlot.className = 'slot';
-      voteSlot.onclick = () => location.href = 'vote.html';
-      voteSlot.innerHTML = `
-          <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/golden_apple.png" alt="Vote">
-          <div class="tooltip"><span class="title" style="color: #FFFF55;">Vote Sites</span><span class="subtitle">Vote for daily rewards</span></div>
-      `;
-      grid.appendChild(voteSlot);
-      slotsFilled++;
+        try {
+            await addDoc(collection(db, "orders"), {
+                rankName: rankName,
+                additionalInfo: ign,
+                imageUrl: proofUrl,
+                status: 'Pending',
+                hidden: false,
+                createdAt: new Date().toISOString()
+            });
 
-      // Fetch Social Settings
-      let socials = {};
-      try {
-          const docSnap = await getDoc(doc(db, "settings", "socials"));
-          if (docSnap.exists()) socials = docSnap.data();
-      } catch(e) { console.error(e); }
+            showToast("Order submitted successfully! Manager will review it shortly.");
+            closeModal();
+        } catch (err) {
+            console.error("Error creating order:", err);
+            showToast("Failed to submit order. Please try again.", true);
+        }
+    });
 
-      // Discord
-      if (socials.discordEnabled ?? true) {
-          const slot = document.createElement('div');
-          slot.className = 'slot';
-          slot.onclick = () => socials.discord ? window.open(socials.discord, '_blank') : alert("Discord link not configured!");
-          slot.innerHTML = `
-              <img src="https://api.iconify.design/logos:discord-icon.svg" alt="Discord">
-              <div class="tooltip"><span class="title" style="color: #5865F2;">Discord</span><span class="subtitle">Join our community</span></div>
-          `;
-          grid.appendChild(slot);
-          slotsFilled++;
-      }
-
-      // YouTube
-      if (socials.youtubeEnabled ?? true) {
-          const slot = document.createElement('div');
-          slot.className = 'slot';
-          slot.onclick = () => socials.youtube ? window.open(socials.youtube, '_blank') : alert("YouTube link not configured!");
-          slot.innerHTML = `
-              <img src="https://api.iconify.design/logos:youtube-icon.svg" alt="YouTube">
-              <div class="tooltip"><span class="title" style="color: #FF0000;">YouTube</span><span class="subtitle">Subscribe on YouTube</span></div>
-          `;
-          grid.appendChild(slot);
-          slotsFilled++;
-      }
-
-      // TikTok
-      if (socials.tiktokEnabled ?? true) {
-          const slot = document.createElement('div');
-          slot.className = 'slot';
-          slot.onclick = () => socials.tiktok ? window.open(socials.tiktok, '_blank') : alert("TikTok link not configured!");
-          slot.innerHTML = `
-              <img src="https://api.iconify.design/logos:tiktok-icon.svg" alt="TikTok">
-              <div class="tooltip"><span class="title" style="color: #00F2FE;">TikTok</span><span class="subtitle">Follow on TikTok</span></div>
-          `;
-          grid.appendChild(slot);
-          slotsFilled++;
-      }
-
-      // Instagram
-      if (socials.instagramEnabled ?? true) {
-          const slot = document.createElement('div');
-          slot.className = 'slot';
-          slot.onclick = () => socials.instagram ? window.open(socials.instagram, '_blank') : alert("Instagram link not configured!");
-          slot.innerHTML = `
-              <img src="https://api.iconify.design/skill-icons:instagram.svg" alt="Instagram">
-              <div class="tooltip"><span class="title" style="color: #E1306C;">Instagram</span><span class="subtitle">Follow on Instagram</span></div>
-          `;
-          grid.appendChild(slot);
-          slotsFilled++;
-      }
-
-      // Fill remaining chest inventory slots
-      while (slotsFilled < totalSlots - 1) {
-          const emptySlot = document.createElement('div');
-          emptySlot.className = 'slot empty';
-          grid.appendChild(emptySlot);
-          slotsFilled++;
-      }
-
-      // Order Status Slot (Last slot)
-      const statusSlot = document.createElement('div');
-      statusSlot.className = 'slot';
-      statusSlot.onclick = () => location.href = 'status.html';
-      statusSlot.innerHTML = `
-          <img src="https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.20.1/assets/minecraft/textures/item/emerald.png" alt="Status">
-          <div class="tooltip"><span class="title" style="color: #55FF55;">Order Status</span><span class="subtitle">View your purchases</span></div>
-      `;
-      grid.appendChild(statusSlot);
-  }
-
-  async function loadSMPName() {
-      try {
-          const docRef = doc(db, "settings", "server");
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists() && docSnap.data().name) {
-              document.getElementById('server-title-display').innerText = docSnap.data().name;
-          }
-      } catch(e) { console.error(e); }
-  }
-
-  loadSMPName();
-  loadNotice();
-  initStore();
+    // Initialize Store
+    loadStoreRanks();
 </script>
 </body>
 </html>
